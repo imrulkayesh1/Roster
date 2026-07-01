@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Roster</title>
+    <style>
+        :root {
+            --primary-color: #1565C0;
+            --primary-hover: #0d47a1;
+            --bg-color: #eef2f7;
+            --card-bg: #ffffff;
+            --text-main: #333333;
+            --text-muted: #666666;
+            
+            /* Shift Specific Colors */
+            --color-ds: #4F6D7A;      /* Day Shift (DS1, etc.) */
+            --color-dso: #37474F;     /* Day Shift Off (DSO) */
+            --color-ns: #3F51B5;      /* Night Shift (NS1, etc.) */
+            --color-nso: #283593;     /* Night Shift Off (NSO) */
+            --color-ms: #2E7D32;      /* Morning Shift */
+            --color-off: #C62828;     /* Standard Off */
+            --color-leave: #6A1B9A;   /* Leaves (CL, EL) */
+            --color-pending: #78909C; /* Updating Soon */
+            --color-other: #546E7A;   /* Default Fallback */
+            
+            /* Attendance Color */
+            --color-present: #FFCCB6;  /* Soft Peach Color */
+            --text-present: #5D4037;   /* Dark Brown text */
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+        }
+
+        header {
+            background: var(--primary-color);
+            color: #fff;
+            padding: 18px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: auto;
+            padding: 15px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-top: 20px;
+        }
+
+        .search-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        input {
+            width: 100%;
+            padding: 14px;
+            font-size: 18px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            outline: none;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            background: var(--primary-color);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        button:hover {
+            background: var(--primary-hover);
+        }
+
+        button:disabled {
+            background: #a0aec0;
+            cursor: not-allowed;
+        }
+
+        #result {
+            margin-top: 20px;
+        }
+
+        .employeeName {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 5px;
+        }
+
+        .employeeId {
+            color: var(--text-muted);
+            font-size: 15px;
+            margin-bottom: 20px;
+            line-height: 1.4;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 15px;
+        }
+
+        .calendar-header-grid, .calendar {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+        }
+
+        .calendar-header-grid {
+            margin-bottom: 8px;
+            text-align: center;
+            font-weight: bold;
+            color: var(--primary-color);
+            font-size: 14px;
+        }
+
+        .weekday-label {
+            padding: 5px 0;
+            background: #e0e6ed;
+            border-radius: 4px;
+        }
+
+        .day {
+            padding: 12px 6px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: bold;
+            color: white;
+            min-height: 75px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .blank-day {
+            background: #f0f2f5;
+            border: 1px dashed #cfd8dc;
+            border-radius: 8px;
+            min-height: 75px;
+        }
+
+        .day-date {
+            font-size: 13px;
+            opacity: 0.9;
+        }
+
+        .shift-code {
+            font-size: 14px;
+            letter-spacing: 0.5px;
+        }
+
+        .updating-text {
+            font-size: 10px;
+            opacity: 0.85;
+            font-weight: normal;
+        }
+
+        .ds { background-color: var(--color-ds); }
+        .dso { background-color: var(--color-dso); }
+        .ns { background-color: var(--color-ns); }
+        .nso { background-color: var(--color-nso); }
+        .ms { background-color: var(--color-ms); }
+        .off { background-color: var(--color-off); }
+        .leave { background-color: var(--color-leave); }
+        .pending { background-color: var(--color-pending); }
+        .other { background-color: var(--color-other); }
+
+        .present { 
+            background-color: var(--color-present); 
+            color: var(--text-present) !important; 
+        }
+
+        @media(max-width: 600px){
+            .calendar-header-grid { font-size: 11px; }
+            .day-date { font-size: 11px; }
+            .shift-code { font-size: 12px; }
+            .updating-text { font-size: 9px; }
+            .day { min-height: 65px; padding: 8px 4px; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>Employee Monthly Roster</header>
+
+    <div class="container">
+        <div class="card">
+            <div class="search-container">
+                <input id="empid" type="text" placeholder="Enter BA ID">
+                <button id="searchBtn" onclick="searchRoster()" disabled>Loading Data...</button>
+            </div>
+        </div>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        // সরাসরি গুগলের অপ্টিমাইজড পাবলিশিং লিংক ব্যবহার করা হয়েছে
+        const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTiawn3EyhWIX0Qr-QWd0BsERNeTEAUaWQcj8iGNjVFzG6ssacb6jyEfQHC5Tx5hPnxNL3S9HXYot4o/pub?output=csv";
+        let roster = [];
+
+        // আল্ট্রা-ফাস্ট অ্যাসিনক্রোনাস ডেটা লোডার
+        async function loadRoster() {
+            const btn = document.getElementById("searchBtn");
+            try {
+                // ব্রাউজারের ক্যাশ অপ্টিমাইজেশনকে কাজে লাগিয়ে খুব দ্রুত ডেটা আনা
+                const res = await fetch(CSV_URL, { cache: "default" });
+                const txt = await res.text();
+                
+                // লাইটওয়েট স্প্লিট লজিক
+                roster = txt.trim().split("\n").map(r => r.split(","));
+                
+                btn.innerText = "Search";
+                btn.disabled = false;
+            } catch (err) {
+                console.error(err);
+                btn.innerText = "Error Loading Data";
+                document.getElementById("result").innerHTML = "<div class='card'><h3 style='color:red; text-align:center;'>Failed to fetch roster. Please reload.</h3></div>";
+            }
+        }
+
+        function getColor(shift) {
+            const s = String(shift).trim().toUpperCase();
+            if (!s) return "pending";
+            
+            if (s === "MP" || s === "GP" || s === "DP" || s === "NP" || (s.length === 2 && s.endsWith("P"))) {
+                return "present";
+            }
+
+            if (s === "DSO") return "dso";
+            if (s === "NSO") return "nso";
+            if (s.startsWith("DS")) return "ds";
+            if (s.startsWith("NS")) return "ns";
+            if (s.startsWith("MS")) return "ms";
+            if (s.includes("OFF")) return "off";
+            if (s.includes("CL") || s.includes("EL") || s.includes("AL")) return "leave";
+            
+            return "other";
+        }
+
+        function getDaysInCurrentMonth() {
+            const now = new Date();
+            return new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+        }
+
+        function getFirstDayIndex() {
+            const now = new Date();
+            return new Date(now.getFullYear(), now.getMonth(), 1).getDay();
+        }
+
+        function getMonthName() {
+            return new Date().toLocaleString('en-US', { month: 'short' });
+        }
+
+        function searchRoster() {
+            const id = document.getElementById("empid").value.trim();
+            const resultDiv = document.getElementById("result");
+
+            if (id == "") {
+                alert("Enter BA ID");
+                return;
+            }
+
+            let emp = null;
+            for (let i = 1; i < roster.length; i++) {
+                if (String(roster[i][2]).trim() == id) {
+                    emp = roster[i];
+                    break;
+                }
+            }
+
+            if (emp == null) {
+                resultDiv.innerHTML = "<div class='card'><h3 style='text-align:center; color:#555;'>Employee Not Found</h3></div>";
+                return;
+            }
+
+            const totalDaysInMonth = getDaysInCurrentMonth();
+            const firstDayIndex = getFirstDayIndex();
+            const currentMonthLabel = getMonthName();
+
+            let html = "<div class='card'>";
+            html += "<div class='employeeName'>" + emp[4] + "</div>";
+            html += "<div class='employeeId'><strong>ID :</strong> " + emp[2] + " <br> <strong>BA :</strong> " + emp[3] + "</div>";
+            
+            html += "<div class='calendar-header-grid'>";
+            const weekdays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+            weekdays.forEach(day => { html += "<div class='weekday-label'>" + day + "</div>"; });
+            html += "</div>";
+
+            html += "<div class='calendar'>";
+            for (let b = 0; b < firstDayIndex; b++) { html += "<div class='blank-day'></div>"; }
+
+            for (let d = 1; d <= totalDaysInMonth; d++) {
+                const rosterIndex = 10 + d; 
+                let shift = "";
+                
+                if (rosterIndex < emp.length) {
+                    shift = String(emp[rosterIndex]).trim();
+                }
+
+                const dateString = String(d).padStart(2, '0') + " " + currentMonthLabel;
+
+                if (shift !== "") {
+                    html += "<div class='day " + getColor(shift) + "'>";
+                    html += "<div class='day-date'>" + dateString + "</div>";
+                    html += "<div class='shift-code'>" + shift + "</div>";
+                    html += "</div>";
+                } else {
+                    html += "<div class='day pending'>";
+                    html += "<div class='day-date'>" + dateString + "</div>";
+                    html += "<div class='updating-text'>Updating Soon</div>";
+                    html += "</div>";
+                }
+            }
+
+            html += "</div></div>";
+            resultDiv.innerHTML = html;
+        }
+
+        document.getElementById("empid").addEventListener("keypress", function(e) {
+            if (e.key === "Enter" && !document.getElementById("searchBtn").disabled) {
+                searchRoster();
+            }
+        });
+
+        loadRoster();
+    </script>
+</body>
+  </html>
