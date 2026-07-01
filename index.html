@@ -212,26 +212,24 @@
         <div class="card">
             <div class="search-container">
                 <input id="empid" type="text" placeholder="Enter BA ID">
-                <button id="searchBtn" onclick="searchRoster()" disabled>Loading Data...</button>
+                <button id="searchBtn" onclick="searchRoster()" disabled>Search</button>
             </div>
         </div>
         <div id="result"></div>
     </div>
 
     <script>
-        // সরাসরি গুগলের অপ্টিমাইজড পাবলিশিং লিংক ব্যবহার করা হয়েছে
-        const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTiawn3EyhWIX0Qr-QWd0BsERNeTEAUaWQcj8iGNjVFzG6ssacb6jyEfQHC5Tx5hPnxNL3S9HXYot4o/pub?output=csv";
+        const BASE_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQnIS1j49dSQiOC-PjeKJSq7MIf0dnM7hW5deAJU6WgjSkDB0DFi92Z4C3kKvtXv2Awd_tZ5w6mftFg/pub?gid=0&single=true&output=csv"; 
         let roster = [];
 
-        // আল্ট্রা-ফাস্ট অ্যাসিনক্রোনাস ডেটা লোডার
+        // লাইভ আপডেটের জন্য ব্রাউজার ক্যাশ পুরোপুরি বন্ধ করার ফাংশন
         async function loadRoster() {
             const btn = document.getElementById("searchBtn");
             try {
-                // ব্রাউজারের ক্যাশ অপ্টিমাইজেশনকে কাজে লাগিয়ে খুব দ্রুত ডেটা আনা
-                const res = await fetch(CSV_URL, { cache: "default" });
+                // ক্যাশ এড়ানোর জন্য লিংকের সাথে একটি র্যান্ডম টাইমস্ট্যাম্প যুক্ত করা হয়েছে
+                const cacheBuster = "&_ts=" + new Date().getTime();
+                const res = await fetch(BASE_CSV_URL + cacheBuster, { cache: "no-store" });
                 const txt = await res.text();
-                
-                // লাইটওয়েট স্প্লিট লজিক
                 roster = txt.trim().split("\n").map(r => r.split(","));
                 
                 btn.innerText = "Search";
@@ -262,21 +260,12 @@
             return "other";
         }
 
-        function getDaysInCurrentMonth() {
-            const now = new Date();
-            return new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
-        }
-
         function getFirstDayIndex() {
             const now = new Date();
-            return new Date(now.getFullYear(), now.getMonth(), 1).getDay();
+            return new Date(now.getFullYear(), 6, 1).getDay(); 
         }
 
-        function getMonthName() {
-            return new Date().toLocaleString('en-US', { month: 'short' });
-        }
-
-        function searchRoster() {
+        async function searchRoster() {
             const id = document.getElementById("empid").value.trim();
             const resultDiv = document.getElementById("result");
 
@@ -284,6 +273,10 @@
                 alert("Enter BA ID");
                 return;
             }
+
+            // বাটন ক্লিক করার সাথে সাথে ব্যাকএন্ডে শিট থেকে একদম লেটেস্ট ডেটা রি-লোড হবে
+            document.getElementById("searchBtn").disabled = true;
+            await loadRoster();
 
             let emp = null;
             for (let i = 1; i < roster.length; i++) {
@@ -298,9 +291,9 @@
                 return;
             }
 
-            const totalDaysInMonth = getDaysInCurrentMonth();
             const firstDayIndex = getFirstDayIndex();
-            const currentMonthLabel = getMonthName();
+            const currentMonthLabel = "Jul";
+            const totalDaysInJuly = 31;
 
             let html = "<div class='card'>";
             html += "<div class='employeeName'>" + emp[4] + "</div>";
@@ -314,21 +307,28 @@
             html += "<div class='calendar'>";
             for (let b = 0; b < firstDayIndex; b++) { html += "<div class='blank-day'></div>"; }
 
-            for (let d = 1; d <= totalDaysInMonth; d++) {
-                const rosterIndex = 10 + d; 
-                let shift = "";
-                
-                if (rosterIndex < emp.length) {
-                    shift = String(emp[rosterIndex]).trim();
-                }
-
+            for (let d = 1; d <= totalDaysInJuly; d++) {
                 const dateString = String(d).padStart(2, '0') + " " + currentMonthLabel;
 
-                if (shift !== "") {
-                    html += "<div class='day " + getColor(shift) + "'>";
-                    html += "<div class='day-date'>" + dateString + "</div>";
-                    html += "<div class='shift-code'>" + shift + "</div>";
-                    html += "</div>";
+                if (d <= 15) {
+                    const rosterIndex = 19 + d; 
+                    let shift = "";
+                    
+                    if (rosterIndex < emp.length) {
+                        shift = String(emp[rosterIndex]).trim();
+                    }
+
+                    if (shift !== "") {
+                        html += "<div class='day " + getColor(shift) + "'>";
+                        html += "<div class='day-date'>" + dateString + "</div>";
+                        html += "<div class='shift-code'>" + shift + "</div>";
+                        html += "</div>";
+                    } else {
+                        html += "<div class='day pending'>";
+                        html += "<div class='day-date'>" + dateString + "</div>";
+                        html += "<div class='updating-text'>Updating Soon</div>";
+                        html += "</div>";
+                    }
                 } else {
                     html += "<div class='day pending'>";
                     html += "<div class='day-date'>" + dateString + "</div>";
@@ -350,4 +350,4 @@
         loadRoster();
     </script>
 </body>
-  </html>
+</html>
