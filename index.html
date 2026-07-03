@@ -1,353 +1,1494 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Employee Roster</title>
-    <style>
-        :root {
-            --primary-color: #1565C0;
-            --primary-hover: #0d47a1;
-            --bg-color: #eef2f7;
-            --card-bg: #ffffff;
-            --text-main: #333333;
-            --text-muted: #666666;
+<!DOCTYPE html>  
+<html lang="en">  
+<head>  
+    <meta charset="UTF-8">  
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">  
+    <title>Advanced Operational Roster & Warehouse Analytics</title>  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>  
+        :root {  
+            --primary-color: #D32F2F; 
+            --primary-hover: #B71C1C;  
+            --bg-color: #f8f9fa;  
+            --card-bg: #ffffff;  
+            --text-main: #202124;  
+            --text-muted: #5f6368;  
+            --border-color: #dadce0;  
             
-            /* Shift Specific Colors */
-            --color-ds: #4F6D7A;      /* Day Shift (DS1, etc.) */
-            --color-dso: #37474F;     /* Day Shift Off (DSO) */
-            --color-ns: #3F51B5;      /* Night Shift (NS1, etc.) */
-            --color-nso: #283593;     /* Night Shift Off (NSO) */
-            --color-ms: #2E7D32;      /* Morning Shift */
-            --color-off: #C62828;     /* Standard Off */
-            --color-leave: #6A1B9A;   /* Leaves (CL, EL) */
-            --color-pending: #78909C; /* Updating Soon */
-            --color-other: #546E7A;   /* Default Fallback */
-            
-            /* Attendance Color */
-            --color-present: #FFCCB6;  /* Soft Peach Color */
-            --text-present: #5D4037;   /* Dark Brown text */
+            /* Shift Colors */  
+            --color-ds: #4F6D7A;      
+            --color-dso: #37474F;     
+            --color-ns: #3F51B5;      
+            --color-nso: #283593;     
+            --color-ms: #2E7D32;      
+            --color-off: #C62828;     
+            --color-leave: #6A1B9A;   
+            --color-pending: #78909C;  
+            --color-other: #546E7A;   
+            --color-present: #FFCCB6;  
+            --text-present: #5d4037;   
+            --color-absent: #FFCDD2;
+            --text-absent: #B71C1C;
+        }  
+
+        * {  
+            margin: 0;  
+            padding: 0;  
+            box-sizing: border-box;  
+            font-family: 'Segoe UI', Roboto, Arial, sans-serif;  
+        }  
+
+        body {  
+            background-image: url('1000520411.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            background-repeat: no-repeat;
+            background-color: var(--bg-color);  
+            color: var(--text-main);  
+            overflow-x: hidden;  
+        }  
+
+        header {  
+            background: rgba(255, 255, 255, 0.95);  
+            color: var(--text-main);  
+            padding: 14px 20px;  
+            display: flex;  
+            align-items: center;  
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);  
+            border-bottom: 3px solid var(--primary-color);
+            position: sticky;
+            top: 0;
+            z-index: 100;  
+        }  
+
+        .menu-btn {  
+            display: flex;  
+            flex-direction: column;  
+            justify-content: space-between;  
+            width: 22px;  
+            height: 16px;  
+            cursor: pointer;  
+            background: transparent;  
+            border: none;  
+            outline: none;  
+            margin-right: 20px;
+        }  
+
+        .menu-btn span {  
+            display: block;  
+            width: 100%;  
+            height: 2px;  
+            background-color: var(--text-muted);  
+            border-radius: 2px;  
+        }  
+
+        .header-title {  
+            font-size: 20px;  
+            font-weight: 600;  
+        }  
+
+        /* Sidebar Menu */  
+        .sidebar {  
+            position: fixed;  
+            top: 0;  
+            left: -280px;  
+            width: 280px;  
+            height: 100%;  
+            background-color: var(--card-bg);  
+            box-shadow: 4px 0 15px rgba(0,0,0,0.1);  
+            transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);  
+            z-index: 999;  
+            padding-top: 20px;  
+        }  
+
+        .sidebar.active { left: 0; }  
+
+        .sidebar-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px 20px 24px;
+            border-bottom: 1px solid var(--border-color);
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: Arial, sans-serif;
-        }
-
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-main);
-        }
-
-        header {
-            background: var(--primary-color);
-            color: #fff;
-            padding: 18px;
-            text-align: center;
-            font-size: 24px;
+        .sidebar-title {
+            font-size: 18px;
             font-weight: bold;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            color: var(--primary-color);
         }
 
-        .container {
-            max-width: 1000px;
-            margin: auto;
-            padding: 15px;
-        }
+        .close-btn {  
+            font-size: 24px;  
+            cursor: pointer;  
+            color: var(--text-muted);  
+            background: none;
+            border: none;
+        }  
 
-        .card {
+        .sidebar-menu-item {  
+            padding: 14px 24px;  
+            font-size: 15px;  
+            font-weight: 500;  
+            color: #3c4043;  
+            cursor: pointer;  
+            display: flex;
+            align-items: center;
+        }  
+
+        .sidebar-menu-item:hover {  
+            background-color: #f1f3f4;  
+            color: var(--primary-color);  
+        }  
+
+        .sidebar-overlay {  
+            position: fixed;  
+            top: 0;  
+            left: 0;  
+            width: 100%;  
+            height: 100%;  
+            background: rgba(0,0,0,0.3);  
+            backdrop-filter: blur(2px);
+            display: none;  
+            z-index: 998;  
+        }  
+
+        .sidebar-overlay.active { display: block; }  
+
+        /* Premium Modal Window */
+        .modal-window {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.9);
             background: var(--card-bg);
-            padding: 20px;
+            width: 95%;
+            max-width: 500px;
             border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            margin-top: 20px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+            z-index: 1005;
+            display: none;
+            opacity: 0;
+            transition: all 0.3s ease;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
         }
 
-        .search-container {
+        .modal-window.active {
+            display: block;
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .modal-header {
+            background: #f1f3f4;
+            padding: 16px 20px;
+            font-weight: 600;
+            font-size: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .modal-body {
+            padding: 20px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        /* 3P Table Specific Professional Styling */
+        .report-modal-window {
+            max-width: 950px;
+            width: 98%;
+        }
+
+        .table-responsive-wrapper {
+            width: 100%;
+            overflow-x: auto;
+            margin-bottom: 15px;
+            border-radius: 4px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .threep-report-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            text-align: center;
+            background: #fff;
+            min-width: 800px;
+        }
+
+        .threep-report-table th, .threep-report-table td {
+            border: 1px solid #111;
+            padding: 8px 6px;
+            font-weight: 600;
+        }
+
+        .threep-title-header {
+            background: #000;
+            color: #fff;
+            font-size: 18px;
+            letter-spacing: 1px;
+        }
+
+        .threep-subtitle-header {
+            background: #00E5FF;
+            color: #000;
+            font-size: 14px;
+        }
+
+        .threep-blue-header {
+            background: #0D47A1;
+            color: #fff;
+        }
+
+        .threep-row-ops { background: #E8F5E9; }
+        .threep-row-yellow { background: #FFFDE7; }
+        .threep-row-pink { background: #FFEBEE; color: #C62828; }
+
+        /* Glassmorphism Popup Styles */
+        .glass-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            z-index: 2000;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .glass-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.85);
+            width: 90%;
+            max-width: 450px;
+            max-height: 70vh;
+            background: rgba(255, 255, 255, 0.65);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            z-index: 2001;
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .glass-overlay.active, .glass-popup.active {
+            display: flex;
+            opacity: 1;
+        }
+        .glass-popup.active {
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .glass-header {
+            padding: 16px 20px;
+            font-weight: 700;
+            font-size: 16px;
+            color: #1a1a1a;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .glass-close {
+            font-size: 26px;
+            background: none;
+            border: none;
+            color: #333;
+            cursor: pointer;
+            line-height: 1;
+        }
+
+        .glass-body {
+            padding: 15px 20px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .emp-list-item {
+            background: rgba(255, 255, 255, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 12px 14px;
+            border-radius: 10px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+            font-weight: 600;
+            color: #222;
+        }
+        .emp-list-item span {
+            font-size: 12px;
+            font-weight: normal;
+            color: #333;
+            background: rgba(255, 255, 255, 0.7);
+            padding: 2px 8px;
+            border-radius: 20px;
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+
+        /* Shift Selection Buttons Grid */
+        .shift-selection-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+
+        .shift-select-btn {
+            padding: 14px;
+            font-size: 14px;
+            font-weight: 600;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background: #fff;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            align-items: center;
+        }
+
+        .shift-select-btn:hover {
+            border-color: var(--primary-color);
+            background-color: #f4f8fe;
+            color: var(--primary-color);
+        }
+
+        .month-calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .month-btn {
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            background: #fff;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            text-align: center;
+            color: var(--text-main);
+            transition: all 0.2s;
+        }
+
+        .month-btn:hover {
+            background: #e8f0fe;
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        /* Day Wise Date Input Styling */
+        .daywise-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        /* Advanced Analytics Cards Design */
+        .analytics-output-container {
+            margin-top: 15px;
+            border-top: 1px solid var(--border-color);
+            padding-top: 15px;
+        }
+
+        .shift-report-card {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+        }
+        
+        .shift-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #fff;
+            display: flex;
+            justify-content: space-between;
+            background: var(--primary-color);
+            padding: 12px 14px;
+        }
+
+        .ops-metrics-list {
             display: flex;
             flex-direction: column;
             gap: 10px;
+            padding: 15px;
         }
 
-        input {
-            width: 100%;
-            padding: 14px;
-            font-size: 18px;
-            border-radius: 8px;
-            border: 1px solid #ccc;
-            outline: none;
-        }
-
-        button {
-            width: 100%;
-            padding: 14px;
-            background: var(--primary-color);
-            color: #fff;
-            border: none;
-            border-radius: 8px;
-            font-size: 18px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-
-        button:hover {
-            background: var(--primary-hover);
-        }
-
-        button:disabled {
-            background: #a0aec0;
-            cursor: not-allowed;
-        }
-
-        #result {
-            margin-top: 20px;
-        }
-
-        .employeeName {
-            font-size: 24px;
-            font-weight: bold;
-            color: var(--primary-color);
-            margin-bottom: 5px;
-        }
-
-        .employeeId {
-            color: var(--text-muted);
-            font-size: 15px;
-            margin-bottom: 20px;
-            line-height: 1.4;
-            border-bottom: 1px solid #e2e8f0;
-            padding-bottom: 15px;
-        }
-
-        .calendar-header-grid, .calendar {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 8px;
-        }
-
-        .calendar-header-grid {
-            margin-bottom: 8px;
-            text-align: center;
-            font-weight: bold;
-            color: var(--primary-color);
-            font-size: 14px;
-        }
-
-        .weekday-label {
-            padding: 5px 0;
-            background: #e0e6ed;
-            border-radius: 4px;
-        }
-
-        .day {
-            padding: 12px 6px;
-            border-radius: 8px;
-            text-align: center;
-            font-weight: bold;
-            color: white;
-            min-height: 75px;
+        .ops-metric-row {
             display: flex;
-            flex-direction: column;
-            justify-content: center;
+            justify-content: space-between;
             align-items: center;
-            gap: 4px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        }
-
-        .blank-day {
-            background: #f0f2f5;
-            border: 1px dashed #cfd8dc;
-            border-radius: 8px;
-            min-height: 75px;
-        }
-
-        .day-date {
-            font-size: 13px;
-            opacity: 0.9;
-        }
-
-        .shift-code {
+            padding: 12px 14px;
+            background: #f1f3f4;
+            border-radius: 6px;
             font-size: 14px;
-            letter-spacing: 0.5px;
+            font-weight: 500;
+            border-left: 4px solid #78909c;
+            cursor: pointer;
+            transition: transform 0.2s, background-color 0.2s;
         }
 
-        .updating-text {
-            font-size: 10px;
-            opacity: 0.85;
-            font-weight: normal;
+        .ops-metric-row:hover {
+            transform: scale(1.02);
+            background-color: #e2e4e6;
         }
 
-        .ds { background-color: var(--color-ds); }
-        .dso { background-color: var(--color-dso); }
-        .ns { background-color: var(--color-ns); }
-        .nso { background-color: var(--color-nso); }
-        .ms { background-color: var(--color-ms); }
-        .off { background-color: var(--color-off); }
-        .leave { background-color: var(--color-leave); }
-        .pending { background-color: var(--color-pending); }
-        .other { background-color: var(--color-other); }
+        .ops-metric-row.highlight-blue { border-left-color: #1a73e8; background: #f4f8fe; font-weight: 600; }
+        .ops-metric-row.highlight-blue:hover { background-color: #e3edfc; }
+        
+        .ops-metric-row.highlight-green { border-left-color: #2e7d32; background: #e8f5e9; font-weight: bold; }
+        .ops-metric-row.highlight-green:hover { background-color: #dbf0dc; }
+        
+        .ops-metric-row.highlight-red { border-left-color: #c62828; background: #fdeaea;}
+        .ops-metric-row.highlight-red:hover { background-color: #fbd5d5; }
+        
+        .ops-metric-row.highlight-purple { border-left-color: #6a1b9a; background: #f3e5f5; }
+        .ops-metric-row.highlight-purple:hover { background-color: #ebd3f1; }
+        
+        .ops-metric-row.highlight-orange { border-left-color: #e67e22; background: #fff3e0; }
+        .ops-metric-row.highlight-orange:hover { background-color: #ffe6cc; }
 
-        .present { 
-            background-color: var(--color-present); 
-            color: var(--text-present) !important; 
+        .ops-metric-row span {
+            font-size: 16px;
+            font-weight: 700;
         }
 
-        @media(max-width: 600px){
-            .calendar-header-grid { font-size: 11px; }
-            .day-date { font-size: 11px; }
-            .shift-code { font-size: 12px; }
-            .updating-text { font-size: 9px; }
-            .day { min-height: 65px; padding: 8px 4px; }
+        /* Toast UI */
+        .toast-container {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background-color: #323232;
+            color: #ffffff;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            z-index: 1010;
+            opacity: 0;
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease;
+            pointer-events: none;
         }
+
+        .toast-container.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
+        /* Layout Main Body UI */  
+        .container {  
+            max-width: 900px;  
+            margin: auto;  
+            padding: 20px 15px;  
+        }  
+
+        .card {  
+            background: var(--card-bg);  
+            padding: 24px;  
+            border-radius: 8px;  
+            border: 1px solid var(--border-color);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);  
+        }  
+
+        .search-container {  
+            display: flex;  
+            flex-direction: column;  
+            gap: 16px;  
+        }  
+
+        .form-row {  
+            display: flex;  
+            gap: 12px;  
+        }  
+
+        input, select {  
+            padding: 12px 16px;  
+            font-size: 15px;  
+            border-radius: 6px;  
+            border: 1px solid var(--border-color);  
+            outline: none;  
+            background-color: #fff;  
+        }  
+
+        input { flex: 2; }  
+        select {  
+            flex: 1;  
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%235f6368' stroke-width='3'><path d='M6 9l6 6 6-6'/></svg>");
+            background-repeat: no-repeat;
+            background-position: right 14px center;
+            padding-right: 35px;
+        }  
+
+        select:disabled { background-color: #f1f3f4; cursor: not-allowed; color: #80868b; }
+
+        button.search-btn {  
+            width: 100%;  
+            padding: 12px;  
+            background: var(--primary-color);  
+            color: #fff;  
+            border: none;  
+            border-radius: 6px;  
+            font-size: 16px;  
+            font-weight: 500;  
+            cursor: pointer;  
+        }  
+
+        button.search-btn:disabled { background: #ccdecb; color: #80868b; }  
+
+        #result { margin-top: 20px; }  
+
+        .employeeName { font-size: 22px; font-weight: 600; color: var(--primary-color); margin-bottom: 6px; }  
+        .employeeId { color: var(--text-muted); font-size: 14px; margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 15px; display: flex; justify-content: space-between; }  
+
+        .calendar-header-grid, .calendar { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }  
+        .calendar-header-grid { margin-bottom: 6px; text-align: center; font-weight: 600; color: var(--text-muted); font-size: 13px; }  
+        .weekday-label { padding: 6px 0; background: #f1f3f4; border-radius: 4px; }  
+        
+        .day { padding: 10px 4px; border-radius: 6px; text-align: center; font-weight: bold; color: white; min-height: 70px; display: flex; flex-direction: column; justify-content: center; align-items: center; }  
+        .blank-day { background: #f8f9fa; border: 1px dashed var(--border-color); border-radius: 6px; }  
+        .day-date { font-size: 12px; font-weight: normal; opacity: 0.9;}  
+        .shift-code { font-size: 14px; }  
+        .updating-text { font-size: 10px; font-weight: normal; }  
+
+        .ds { background-color: var(--color-ds); }  
+        .dso { background-color: var(--color-dso); }  
+        .ns { background-color: var(--color-ns); }  
+        .nso { background-color: var(--color-nso); }  
+        .ms { background-color: var(--color-ms); }  
+        .off { background-color: var(--color-off); }  
+        .leave { background-color: var(--color-leave); }  
+        .pending { background-color: var(--color-pending); }  
+        .other { background-color: var(--color-other); }  
+        .present { background-color: var(--color-present); color: var(--text-present) !important; }  
+        .absent-day { background-color: var(--color-absent); color: var(--text-absent) !important; }
+
+        @media(max-width: 600px) {  
+            .form-row { flex-direction: column; }  
+            .calendar-header-grid { font-size: 11px; }  
+            .day { min-height: 60px; }  
+        }  
     </style>
-</head>
-<body>
+</head>  
+<body>  
 
-    <header>Employee Monthly Roster</header>
+<header>
+    <button class="menu-btn" onclick="toggleSidebar()">
+        <span></span><span style="margin: 5px 0;"></span><span></span>
+    </button>
+    <div class="header-title">Roster Dashboard</div>
+</header>  
 
-    <div class="container">
-        <div class="card">
-            <div class="search-container">
-                <input id="empid" type="text" placeholder="Enter BA ID">
-                <button id="searchBtn" onclick="searchRoster()" disabled>Search</button>
-            </div>
-        </div>
-        <div id="result"></div>
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+        <div class="sidebar-title">Menu Options</div>
+        <button class="close-btn" onclick="toggleSidebar()">&times;</button>
     </div>
+    <div class="sidebar-menu-item" onclick="openHistoryModal()">📅 View History Roster</div>
+    <div class="sidebar-menu-item" onclick="openShiftSelectionModal()">📊 Shift wise attendance</div>
+    <div class="sidebar-menu-item" onclick="openDayWiseModal()">📅 Day wise attendance</div>
+    <div class="sidebar-menu-item" onclick="openThreePModal()">📊 3P Attendance Summary</div>
+    <div class="sidebar-menu-item" onclick="openMandaysModal()">⚙️ Mandays</div>
+</div>
 
-    <script>
-        const BASE_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQnIS1j49dSQiOC-PjeKJSq7MIf0dnM7hW5deAJU6WgjSkDB0DFi92Z4C3kKvtXv2Awd_tZ5w6mftFg/pub?gid=0&single=true&output=csv"; 
-        let roster = [];
+<div class="sidebar-overlay" id="modalOverlay" onclick="closeHistoryModal()"></div>
+<div class="modal-window" id="historyModal">
+    <div class="modal-header">
+        <span>Select Roster Month</span>
+        <button class="close-btn" onclick="closeHistoryModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+        <div class="month-calendar-grid">
+            <button class="month-btn" onclick="selectHistoryMonth(0)">Jan</button>
+            <button class="month-btn" onclick="selectHistoryMonth(1)">Feb</button>
+            <button class="month-btn" onclick="selectHistoryMonth(2)">Mar</button>
+            <button class="month-btn" onclick="selectHistoryMonth(3)">Apr</button>
+            <button class="month-btn" onclick="selectHistoryMonth(4)">May</button>
+            <button class="month-btn" onclick="selectHistoryMonth(5)">Jun</button>
+            <button class="month-btn" onclick="selectHistoryMonth(6)">Jul</button>
+            <button class="month-btn" onclick="selectHistoryMonth(7)">Aug</button>
+            <button class="month-btn" onclick="selectHistoryMonth(8)">Sep</button>
+            <button class="month-btn" onclick="selectHistoryMonth(9)">Oct</button>
+            <button class="month-btn" onclick="selectHistoryMonth(10)">Nov</button>
+            <button class="month-btn" onclick="selectHistoryMonth(11)">Dec</button>
+        </div>
+        <div class="current-month-indicator" style="margin-top:15px; text-align:center;">
+            <button class="quick-btn" style="background:none; border:none; color:var(--primary-color); font-weight:600; text-decoration:underline; cursor:pointer;" onclick="resetToCurrentMonth()">Go to Current Month</button>
+        </div>
+    </div>
+</div>
 
-        // লাইভ আপডেটের জন্য ব্রাউজার ক্যাশ পুরোপুরি বন্ধ করার ফাংশন
-        async function loadRoster() {
-            const btn = document.getElementById("searchBtn");
-            try {
-                // ক্যাশ এড়ানোর জন্য লিংকের সাথে একটি র্যান্ডম টাইমস্ট্যাম্প যুক্ত করা হয়েছে
-                const cacheBuster = "&_ts=" + new Date().getTime();
-                const res = await fetch(BASE_CSV_URL + cacheBuster, { cache: "no-store" });
-                const txt = await res.text();
-                roster = txt.trim().split("\n").map(r => r.split(","));
-                
-                btn.innerText = "Search";
-                btn.disabled = false;
-            } catch (err) {
-                console.error(err);
-                btn.innerText = "Error Loading Data";
-                document.getElementById("result").innerHTML = "<div class='card'><h3 style='color:red; text-align:center;'>Failed to fetch roster. Please reload.</h3></div>";
-            }
+<div class="sidebar-overlay" id="shiftOverlay" onclick="closeShiftModal()"></div>
+<div class="modal-window" id="shiftModal">
+    <div class="modal-header">
+        <span>📊 Ops Shift wise attendance</span>
+        <button class="close-btn" onclick="closeShiftModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+        <div class="shift-selection-grid">
+            <button class="shift-select-btn" onclick="calculateOpsShiftReport('Morning')">🌅 <span>Morning</span></button>
+            <button class="shift-select-btn" onclick="calculateOpsShiftReport('General')">🏢 <span>General</span></button>
+            <button class="shift-select-btn" onclick="calculateOpsShiftReport('Day')">☀️ <span>Day</span></button>
+            <button class="shift-select-btn" onclick="calculateOpsShiftReport('Night')">🌙 <span>Night</span></button>
+        </div>
+        <div id="shiftResultContainer" class="analytics-output-container" style="display: none;"></div>
+    </div>
+</div>
+
+<div class="sidebar-overlay" id="daywiseOverlay" onclick="closeDayWiseModal()"></div>
+<div class="modal-window" id="daywiseModal" style="max-width: 550px; width: 95%;">
+    <div class="modal-header">
+        <span>📅 Day Wise Attendance History</span>
+        <button class="close-btn" onclick="closeDayWiseModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+        <div id="daywiseResultContainer" class="analytics-output-container" style="display: none; margin-top: 0; padding-top: 0;"></div>
+    </div>
+</div>
+
+<!-- Mandays Modal Window -->
+<div class="sidebar-overlay" id="mandaysOverlay" onclick="closeMandaysModal()"></div>
+<div class="modal-window" id="mandaysModal" style="max-width: 500px; width: 95%;">
+    <div class="modal-header">
+        <span>⚙️ Mandays Summary</span>
+        <button class="close-btn" onclick="closeMandaysModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+        <div id="mandaysResultContainer" class="analytics-output-container" style="display: none; margin-top: 0; padding-top: 0;"></div>
+    </div>
+</div>
+
+<div class="sidebar-overlay" id="threepOverlay" onclick="closeThreePModal()"></div>
+<div class="modal-window report-modal-window" id="threepModal">
+    <div class="modal-header">
+        <span>📋 3P Live Performance Matrix</span>
+        <button class="close-btn" onclick="closeThreePModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+        <div class="table-responsive-wrapper" id="threepPrintArea">
+            <table class="threep-report-table" id="threepTable">
+                <thead>
+                    <tr>
+                        <th colspan="7" class="threep-title-header" id="threepTitleDate">3p Attendance As on 02-Jul-2026</th>
+                    </tr>
+                    <tr class="threep-subtitle-header">
+                        <th style="width:20%;">Pick + QC</th>
+                        <th class="threep-blue-header">Morning<br>(7AM to 04 PM)</th>
+                        <th class="threep-blue-header">General<br>(09 AM to 06 PM)</th>
+                        <th class="threep-blue-header">Day<br>(11 AM to 08 PM)</th>
+                        <th class="threep-blue-header">Day Shift Part Timer<br>(04 PM to 08:30 PM)</th>
+                        <th class="threep-blue-header">Night<br>(8PM to 05AM)</th>
+                        <th class="threep-blue-header" style="background:#111;">Total</th>
+                    </tr>
+                </thead>
+                <tbody id="threepTableBody">
+                </tbody>
+            </table>
+        </div>
+        <button class="search-btn" style="background:#2E7D32;" onclick="downloadThreePReportAsImage()">📥 Download 3p Attendance (JPG)</button>
+    </div>
+</div>
+
+<div class="glass-overlay" id="glassOverlay" onclick="closeGlassPopup()"></div>
+<div class="glass-popup" id="glassPopup">
+    <div class="glass-header">
+        <span id="glassPopupTitle">Employee List</span>
+        <button class="glass-close" onclick="closeGlassPopup()">&times;</button>
+    </div>
+    <div class="glass-body" id="glassPopupBody">
+    </div>
+</div>
+
+<div class="toast-container" id="toastBox"><span id="toastText"></span></div>
+
+<div class="container">  
+    <div class="card">  
+        <div class="search-container">  
+            <div class="form-row">
+                <input id="empid" type="text" placeholder="Enter Employee BA ID">  
+                <select id="monthSelect">
+                    <option value="0">January</option><option value="1">February</option>
+                    <option value="2">March</option><option value="3">April</option>
+                    <option value="4">May</option><option value="5">June</option>
+                    <option value="6">July</option><option value="7">August</option>
+                    <option value="8">September</option><option value="9">October</option>
+                    <option value="10">November</option><option value="11">December</option>
+                </select>
+            </div>
+            <button id="searchBtn" class="search-btn" onclick="searchRoster()" disabled>Search Roster</button>  
+        </div>  
+    </div>  
+    <div id="result"></div>  
+</div>  
+
+<script>  
+    const BASE_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQnIS1j49dSQiOC-PjeKJSq7MIf0dnM7hW5deAJU6WgjSkDB0DFi92Z4C3kKvtXv2Awd_tZ5w6mftFg/pub?gid=0&single=true&output=csv";   
+    let roster = [];  
+    let targetYear = new Date().getFullYear();
+
+    // Structural Column Mappings (Protected Layout Defaults)
+    let colMap = { id: 2, ba: 3, name: 4, days: {} };
+
+    let activeLists = { rosterPlan:[], weekOff:[], leave:[], scheduledOps:[], stillInPlan:[], absent:[], present:[] };
+
+    function toggleSidebar() {
+        document.getElementById("sidebar").classList.toggle("active");
+        document.getElementById("sidebarOverlay").classList.toggle("active");
+    }
+
+    function showToast(msg) {
+        const toast = document.getElementById("toastBox");
+        document.getElementById("toastText").innerText = msg;
+        toast.classList.add("show");
+        setTimeout(() => toast.classList.remove("show"), 3000);
+    }
+
+    function openHistoryModal() {
+        toggleSidebar();
+        document.getElementById("historyModal").classList.add("active");
+        document.getElementById("modalOverlay").classList.add("active");
+    }
+
+    function closeHistoryModal() {
+        document.getElementById("historyModal").classList.remove("active");
+        document.getElementById("modalOverlay").classList.remove("active");
+    }
+
+    function openShiftSelectionModal() {
+        if(document.getElementById("sidebar").classList.contains("active")) toggleSidebar();
+        document.getElementById("shiftResultContainer").style.display = "none";
+        document.getElementById("shiftModal").classList.add("active");
+        document.getElementById("shiftOverlay").classList.add("active");
+    }
+
+    function closeShiftModal() {
+        document.getElementById("shiftModal").classList.remove("active");
+        document.getElementById("shiftOverlay").classList.remove("active");
+    }
+
+    function openDayWiseModal() {
+        toggleSidebar();
+        calculateDayWiseAttendance();
+        document.getElementById("daywiseModal").classList.add("active");
+        document.getElementById("daywiseOverlay").classList.add("active");
+    }
+
+    function closeDayWiseModal() {
+        document.getElementById("daywiseModal").classList.remove("active");
+        document.getElementById("daywiseOverlay").classList.remove("active");
+    }
+
+    function openMandaysModal() {
+        toggleSidebar();
+        calculateMandaysSummary();
+        document.getElementById("mandaysModal").classList.add("active");
+        document.getElementById("mandaysOverlay").classList.add("active");
+    }
+
+    function closeMandaysModal() {
+        document.getElementById("mandaysModal").classList.remove("active");
+        document.getElementById("mandaysOverlay").classList.remove("active");
+    }
+
+    function openThreePModal() {
+        toggleSidebar();
+        generateThreePReport();
+        document.getElementById("threepModal").classList.add("active");
+        document.getElementById("threepOverlay").classList.add("active");
+    }
+
+    function closeThreePModal() {
+        document.getElementById("threepModal").classList.remove("active");
+        document.getElementById("threepOverlay").classList.remove("active");
+    }
+
+    function selectHistoryMonth(monthIdx) {
+        document.getElementById("monthSelect").value = monthIdx;
+        closeHistoryModal();
+        showToast("Month switched. Click Search to view.");
+    }
+
+    function resetToCurrentMonth() {
+        initMonthLogic();
+        closeHistoryModal();
+        showToast("Returned to Current Month");
+    }
+
+    function getOperationalDateInfo() {
+        const now = new Date();
+        let operationalDate = now.getDate();
+        let operationalMonth = now.getMonth();
+        let operationalYear = now.getFullYear();
+
+        const currentHours = now.getHours();
+        const currentMinutes = now.getMinutes();
+        const totalMinutesToday = (currentHours * 60) + currentMinutes;
+        const cutoffMinutes = (5 * 60) + 45; 
+
+        if (totalMinutesToday <= cutoffMinutes) {
+            const previousDayDate = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+            operationalDate = previousDayDate.getDate();
+            operationalMonth = previousDayDate.getMonth();
+            operationalYear = previousDayDate.getFullYear();
         }
 
-        function getColor(shift) {
-            const s = String(shift).trim().toUpperCase();
-            if (!s) return "pending";
-            
-            if (s === "MP" || s === "GP" || s === "DP" || s === "NP" || (s.length === 2 && s.endsWith("P"))) {
-                return "present";
-            }
+        return { operationalDate, operationalMonth, operationalYear };
+    }
 
-            if (s === "DSO") return "dso";
-            if (s === "NSO") return "nso";
-            if (s.startsWith("DS")) return "ds";
-            if (s.startsWith("NS")) return "ns";
-            if (s.startsWith("MS")) return "ms";
-            if (s.includes("OFF")) return "off";
-            if (s.includes("CL") || s.includes("EL") || s.includes("AL")) return "leave";
-            
-            return "other";
+    function initMonthLogic() {
+        const { operationalDate, operationalMonth, operationalYear } = getOperationalDateInfo();
+        targetYear = operationalYear;
+        const selectBox = document.getElementById("monthSelect");
+        selectBox.value = operationalMonth;
+
+        if (operationalDate >= 28 || operationalDate === 1) {
+            selectBox.disabled = false;
+            if (operationalMonth === 11 && operationalDate >= 28) targetYear = operationalYear + 1;
+        } else {
+            selectBox.disabled = true;
         }
+    }
 
-        function getFirstDayIndex() {
-            const now = new Date();
-            return new Date(now.getFullYear(), 6, 1).getDay(); 
+    // Bug Fix: Enhanced Premium Parser for Handling Multi-line fields inside CSV 
+    function parseCSVLine(text) {
+        let p = '', r = [];
+        let q = false;
+        for (let i = 0; i < text.length; i++) {
+            let c = text.charAt(i);
+            if (c === '"') { q = !q; }
+            else if (c === ',' && !q) { r.push(p); p = ''; }
+            else { p += c; }
         }
+        r.push(p);
+        return r;
+    }
 
-        async function searchRoster() {
-            const id = document.getElementById("empid").value.trim();
-            const resultDiv = document.getElementById("result");
+    function mapRosterHeaders() {
+        if(roster.length === 0) return;
+        const headers = roster[0].map(h => String(h).trim().toUpperCase());
+        
+        const idIndex = headers.findIndex(h => h.includes("ID") && !h.includes("BA"));
+        const baIndex = headers.findIndex(h => h.includes("BA"));
+        const nameIndex = headers.findIndex(h => h.includes("NAME") && !h.includes("ID"));
 
-            if (id == "") {
-                alert("Enter BA ID");
-                return;
-            }
+        if(idIndex !== -1) colMap.id = idIndex;
+        if(baIndex !== -1) colMap.ba = baIndex;
+        if(nameIndex !== -1) colMap.name = nameIndex;
 
-            // বাটন ক্লিক করার সাথে সাথে ব্যাকএন্ডে শিট থেকে একদম লেটেস্ট ডেটা রি-লোড হবে
-            document.getElementById("searchBtn").disabled = true;
-            await loadRoster();
-
-            let emp = null;
-            for (let i = 1; i < roster.length; i++) {
-                if (String(roster[i][2]).trim() == id) {
-                    emp = roster[i];
-                    break;
-                }
-            }
-
-            if (emp == null) {
-                resultDiv.innerHTML = "<div class='card'><h3 style='text-align:center; color:#555;'>Employee Not Found</h3></div>";
-                return;
-            }
-
-            const firstDayIndex = getFirstDayIndex();
-            const currentMonthLabel = "Jul";
-            const totalDaysInJuly = 31;
-
-            let html = "<div class='card'>";
-            html += "<div class='employeeName'>" + emp[4] + "</div>";
-            html += "<div class='employeeId'><strong>ID :</strong> " + emp[2] + " <br> <strong>BA :</strong> " + emp[3] + "</div>";
-            
-            html += "<div class='calendar-header-grid'>";
-            const weekdays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-            weekdays.forEach(day => { html += "<div class='weekday-label'>" + day + "</div>"; });
-            html += "</div>";
-
-            html += "<div class='calendar'>";
-            for (let b = 0; b < firstDayIndex; b++) { html += "<div class='blank-day'></div>"; }
-
-            for (let d = 1; d <= totalDaysInJuly; d++) {
-                const dateString = String(d).padStart(2, '0') + " " + currentMonthLabel;
-
-                if (d <= 15) {
-                    const rosterIndex = 19 + d; 
-                    let shift = "";
-                    
-                    if (rosterIndex < emp.length) {
-                        shift = String(emp[rosterIndex]).trim();
-                    }
-
-                    if (shift !== "") {
-                        html += "<div class='day " + getColor(shift) + "'>";
-                        html += "<div class='day-date'>" + dateString + "</div>";
-                        html += "<div class='shift-code'>" + shift + "</div>";
-                        html += "</div>";
-                    } else {
-                        html += "<div class='day pending'>";
-                        html += "<div class='day-date'>" + dateString + "</div>";
-                        html += "<div class='updating-text'>Updating Soon</div>";
-                        html += "</div>";
-                    }
-                } else {
-                    html += "<div class='day pending'>";
-                    html += "<div class='day-date'>" + dateString + "</div>";
-                    html += "<div class='updating-text'>Updating Soon</div>";
-                    html += "</div>";
-                }
-            }
-
-            html += "</div></div>";
-            resultDiv.innerHTML = html;
-        }
-
-        document.getElementById("empid").addEventListener("keypress", function(e) {
-            if (e.key === "Enter" && !document.getElementById("searchBtn").disabled) {
-                searchRoster();
+        colMap.days = {};
+        headers.forEach((h, idx) => {
+            let pureNum = parseInt(h, 10);
+            if(!isNaN(pureNum) && pureNum >= 1 && pureNum <= 31) {
+                colMap.days[pureNum] = idx;
             }
         });
 
-        loadRoster();
-    </script>
-</body>
+        if(Object.keys(colMap.days).length === 0) {
+            for(let d=1; d<=31; d++) { colMap.days[d] = 19 + d; }
+        }
+    }
+
+    async function loadRoster() {  
+        const btn = document.getElementById("searchBtn");  
+        try {  
+            const cacheBuster = "&_ts=" + new Date().getTime();  
+            const res = await fetch(BASE_CSV_URL + cacheBuster, { cache: "no-store" });  
+            const txt = await res.text();  
+            
+            // Bug Fix: Handle standard carriage return safely across different OS formats
+            const cleanRows = txt.replace(/\r/g, "").split("\n");
+            roster = cleanRows.filter(row => row.trim() !== "").map(r => parseCSVLine(r));  
+            
+            mapRosterHeaders();
+            btn.innerText = "Search Roster";  
+            btn.disabled = false;  
+        } catch (err) {  
+            btn.innerText = "Error Loading Data";  
+        }  
+    }  
+
+    function openGlassList(categoryKey, titleText) {
+        const targetList = activeLists[categoryKey];
+        const titleContainer = document.getElementById("glassPopupTitle");
+        const bodyContainer = document.getElementById("glassPopupBody");
+
+        titleContainer.innerText = titleText + ` (${targetList.length})`;
+        bodyContainer.innerHTML = "";
+
+        if(targetList.length === 0) {
+            bodyContainer.innerHTML = `<div style="text-align:center; padding: 20px; color: #666; font-style:italic;">No employees found in this list.</div>`;
+        } else {
+            targetList.forEach(emp => {
+                bodyContainer.innerHTML += `
+                    <div class="emp-list-item">
+                        ${emp.name}
+                        <span>BA: ${emp.ba}</span>
+                    </div>
+                `;
+            });
+        }
+
+        document.getElementById("glassOverlay").classList.add("active");
+        document.getElementById("glassPopup").classList.add("active");
+    }
+
+    function closeGlassPopup() {
+        document.getElementById("glassOverlay").classList.remove("active");
+        document.getElementById("glassPopup").classList.remove("active");
+    }
+
+    // Bug Fix: Isolated Loop & Empty Roster Row Skip Guard to avoid breaking analytics dashboards
+    function getListsForDay(targetDay) {
+        let dayLists = { rosterPlan:[], weekOff:[], leave:[], scheduledOps:[], stillInPlan:[], absent:[], present:[] };
+        const targetDayColIndex = colMap.days[targetDay];
+        if (!targetDayColIndex) return dayLists;
+        
+        let nextDay = targetDay + 1;
+        let nextDayColIndex = colMap.days[nextDay];
+
+        for (let i = 1; i < roster.length; i++) {
+            const emp = roster[i];
+            // Bug Fix: Row Length Validation Protection
+            if (!emp || emp.length <= Math.max(colMap.id, colMap.name) || targetDayColIndex >= emp.length) continue;
+
+            let val = String(emp[targetDayColIndex]).trim().toUpperCase();
+            // Bug Fix: Skip entirely blank row spacers or layout separators in sheet
+            if (!val || String(emp[colMap.id]).trim() === "") continue;
+
+            let nextVal = (nextDayColIndex && nextDayColIndex < emp.length) ? String(emp[nextDayColIndex]).trim().toUpperCase() : "";
+            let pfx = val.charAt(0);
+
+            let isOff = val.endsWith("SO") || val.includes("OFF");
+            let isLeave = val.endsWith("L") || val.includes("CL") || val.includes("PL") || val.includes("EL") || val.includes("AL") || val.includes("-") || val.includes(">");
+            let isAbsent = val.endsWith("A") || val === (pfx + "A");
+            let isPresent = val.endsWith("P") || val === (pfx + "P");
+            let isStillInPlan = (!isOff && !isLeave && !isAbsent && !isPresent && val.length >= 1);
+
+            if (val.startsWith("DS3") || val.startsWith("P") || ((val.startsWith("DA1") || val.startsWith("DS2")) && isStillInPlan)) {
+                if (nextVal.endsWith("SO") || nextVal.includes("OFF") || nextVal.includes("SO")) {
+                    isOff = true; isStillInPlan = false; isAbsent = false; isPresent = false;
+                }
+            }
+
+            const employeeMetadata = { 
+                id: emp[colMap.id], 
+                ba: emp[colMap.ba] || emp[colMap.id], 
+                name: emp[colMap.name] || "Unknown" 
+            };
+            dayLists.rosterPlan.push(employeeMetadata);
+            if (isOff) dayLists.weekOff.push(employeeMetadata);
+            else if (isLeave) dayLists.leave.push(employeeMetadata);
+            else if (isAbsent) { dayLists.absent.push(employeeMetadata); dayLists.scheduledOps.push(employeeMetadata); }
+            else if (isPresent) { dayLists.present.push(employeeMetadata); dayLists.scheduledOps.push(employeeMetadata); }
+            else if (isStillInPlan) { dayLists.stillInPlan.push(employeeMetadata); dayLists.scheduledOps.push(employeeMetadata); }
+        }
+        return dayLists;
+    }
+
+    function viewDayCategoryList(day, categoryKey, titleText) {
+        const dayData = getListsForDay(day);
+        const targetList = dayData[categoryKey];
+        const titleContainer = document.getElementById("glassPopupTitle");
+        const bodyContainer = document.getElementById("glassPopupBody");
+
+        const { operationalMonth } = getOperationalDateInfo();
+        const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+        titleContainer.innerText = `${day} ${monthNames[operationalMonth]} - ${titleText} (${targetList.length})`;
+        bodyContainer.innerHTML = "";
+
+        if(targetList.length === 0) {
+            bodyContainer.innerHTML = `<div style="text-align:center; padding: 20px; color: #666; font-style:italic;">No employees found.</div>`;
+        } else {
+            targetList.forEach(emp => {
+                bodyContainer.innerHTML += `
+                    <div class="emp-list-item">
+                        ${emp.name}
+                        <span>BA: ${emp.ba}</span>
+                    </div>
+                `;
+            });
+        }
+
+        document.getElementById("glassOverlay").classList.add("active");
+        document.getElementById("glassPopup").classList.add("active");
+    }
+
+    async function calculateOpsShiftReport(shiftType) {
+        if(roster.length === 0) await loadRoster();
+
+        const { operationalDate, operationalMonth } = getOperationalDateInfo();
+        const targetDayColIndex = colMap.days[operationalDate]; 
+        const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+        activeLists = { rosterPlan:[], weekOff:[], leave:[], scheduledOps:[], stillInPlan:[], absent:[], present:[] };
+
+        if (!targetDayColIndex) { alert("Target day column error"); return; }
+
+        const firstLetterMap = { "Morning": "M", "General": "G", "Day": "D", "Night": "N" };
+        const matchLetter = firstLetterMap[shiftType];
+
+        let nextDayColIndex = colMap.days[operationalDate + 1];
+
+        for (let i = 1; i < roster.length; i++) {
+            const emp = roster[i];
+            if (!emp || emp.length <= Math.max(colMap.id, colMap.name) || targetDayColIndex >= emp.length) continue;
+
+            let val = String(emp[targetDayColIndex]).trim().toUpperCase();
+            if (!val || String(emp[colMap.id]).trim() === "") continue;
+
+            let nextVal = (nextDayColIndex && nextDayColIndex < emp.length) ? String(nextDayColIndex).trim().toUpperCase() : "";
+            let pfx = val.charAt(0);
+
+            if (pfx !== matchLetter) continue;
+
+            let isOff = val.endsWith("SO") || val.includes("OFF");
+            let isLeave = val.endsWith("L") || val.includes("CL") || val.includes("PL") || val.includes("EL") || val.includes("AL") || val.includes("-") || val.includes(">");
+            let isAbsent = val.endsWith("A") || val === (pfx + "A");
+            let isPresent = val.endsWith("P") || val === (pfx + "P");
+            let isStillInPlan = (!isOff && !isLeave && !isAbsent && !isPresent && val.length >= 1);
+
+            let isPartTimer = val.startsWith("DS3") || val.startsWith("P") || ((val.startsWith("DA1") || val.startsWith("DS2")) && isStillInPlan);
+            
+            if (isPartTimer) {
+                if (nextVal.endsWith("SO") || nextVal.includes("OFF") || nextVal.includes("SO")) {
+                    isOff = true; isStillInPlan = false; isAbsent = false; isPresent = false;
+                }
+            }
+
+            if (shiftType === "Day" && isPartTimer) continue;
+
+            const employeeMetadata = { 
+                id: emp[colMap.id], 
+                ba: emp[colMap.ba] || emp[colMap.id], 
+                name: emp[colMap.name] || "Unknown" 
+            };
+            activeLists.rosterPlan.push(employeeMetadata);
+
+            if (isOff) activeLists.weekOff.push(employeeMetadata);
+            else if (isLeave) activeLists.leave.push(employeeMetadata);
+            else if (isAbsent) { activeLists.absent.push(employeeMetadata); activeLists.scheduledOps.push(employeeMetadata); }
+            else if (isPresent) { activeLists.present.push(employeeMetadata); activeLists.scheduledOps.push(employeeMetadata); }
+            else if (isStillInPlan) { activeLists.stillInPlan.push(employeeMetadata); activeLists.scheduledOps.push(employeeMetadata); }
+        }
+
+        const isDayShift = (shiftType === "Day");
+        const planRowHtml = isDayShift ? `
+            <div class="ops-metric-row highlight-orange" onclick="openGlassList('stillInPlan', 'Still in Plan (Waiting)')">
+                Still in Plan (Waiting) <span>${activeLists.stillInPlan.length}</span>
+            </div>` : "";
+
+        const container = document.getElementById("shiftResultContainer");
+        
+        container.innerHTML = `
+            <div class="shift-report-card">
+                <div class="shift-title">
+                    <span>Date: ${operationalDate} ${monthNames[operationalMonth]}</span>
+                    <span>${shiftType} Shift KPI</span>
+                </div>
+                <div class="ops-metrics-list">
+                    <div class="ops-metric-row" onclick="openGlassList('rosterPlan', 'Total Roster Plan')">Roster Plan <span>${activeLists.rosterPlan.length}</span></div>
+                    <div class="ops-metric-row highlight-purple" onclick="openGlassList('weekOff', 'Week Off List')">Week Off <span>${activeLists.weekOff.length}</span></div>
+                    <div class="ops-metric-row highlight-purple" onclick="openGlassList('leave', 'On Leave List')">Leave <span>${activeLists.leave.length}</span></div>
+                    <div class="ops-metric-row highlight-blue" onclick="openGlassList('scheduledOps', 'Scheduled by Ops')">Scheduled by Ops <span>${activeLists.scheduledOps.length}</span></div>
+                    ${planRowHtml}
+                    <div class="ops-metric-row highlight-red" onclick="openGlassList('absent', 'Absent List')">Absent <span>${activeLists.absent.length}</span></div>
+                    <div class="ops-metric-row highlight-green" onclick="openGlassList('present', 'Actually present on floor')">Actually present on floor <span>${activeLists.present.length}</span></div>
+                </div>
+            </div>
+        `;
+        container.style.display = "block";
+    }
+
+    async function calculateMandaysSummary() {
+        if(roster.length === 0) await loadRoster();
+
+        const { operationalDate, operationalMonth } = getOperationalDateInfo();
+        const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        const currentMonthLabel = monthNames[operationalMonth];
+
+        const container = document.getElementById("mandaysResultContainer");
+        container.innerHTML = "";
+
+        let tableRowsHtml = "";
+        let validDaysCount = 0;
+
+        for (let d = 1; d <= 31; d++) {
+            if (!colMap.days[d]) continue;
+            
+            let dayData = getListsForDay(d);
+            if (dayData.rosterPlan.length === 0) continue; 
+
+            validDaysCount++;
+            let isPastOrToday = (d <= operationalDate);
+            
+            let displayLabel = isPastOrToday ? "Actual Present" : "Upcoming Plan";
+            let displayCount = isPastOrToday ? dayData.present.length : dayData.scheduledOps.length;
+            
+            let rowStyle = isPastOrToday 
+                ? "background: #e8f5e9; color: #2e7d32; font-weight: 600;" 
+                : "background: #f4f8fe; color: #1a73e8; font-weight: 600;";
+
+            tableRowsHtml += `
+                <tr style="${rowStyle}">
+                    <td style="padding: 12px 10px; border: 1px solid var(--border-color); text-align: left;">📅 ${d} ${currentMonthLabel}</td>
+                    <td style="padding: 12px 10px; border: 1px solid var(--border-color); text-align: center; font-size: 13px; text-transform: uppercase;">${displayLabel}</td>
+                    <td style="padding: 12px 10px; border: 1px solid var(--border-color); text-align: center; font-size: 16px; font-weight: bold;">${displayCount}</td>
+                </tr>
+            `;
+        }
+
+        if (validDaysCount > 0) {
+            container.innerHTML = `
+                <div style="width: 100%; overflow-x: auto; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid var(--border-color);">
+                    <table style="width: 100%; border-collapse: collapse; background: #fff; font-size: 14px;">
+                        <thead>
+                            <tr style="background: #37474F; color: #fff; text-align: center;">
+                                <th style="padding: 12px 10px; font-weight: 600; text-align: left;">Date</th>
+                                <th style="padding: 12px 10px; font-weight: 600;">Status Type</th>
+                                <th style="padding: 12px 10px; font-weight: 600;">Count</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${tableRowsHtml}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        } else {
+            container.innerHTML = `<div style="text-align:center; padding: 25px; color: var(--text-muted); font-style:italic;">No active roster data found to calculate Mandays.</div>`;
+        }
+        
+        container.style.display = "block";
+    }
+
+    async function generateThreePReport() {
+        if(roster.length === 0) await loadRoster();
+
+        const { operationalDate, operationalMonth } = getOperationalDateInfo();
+        const targetDayColIndex = colMap.days[operationalDate]; 
+        const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        
+        document.getElementById("threepTitleDate").innerText = `3p Attendance As on ${operationalDate}-${monthNames[operationalMonth]}-${targetYear}`;
+
+        let shifts = {
+            Morning: { roster: 0, off: 0, leave: 0, ops: 0, absent: 0, present: 0 },
+            General: { roster: 0, off: 0, leave: 0, ops: 0, absent: 0, present: 0 },
+            Day: { roster: 0, off: 0, leave: 0, ops: 0, absent: 0, present: 0 },
+            PartTimer: { roster: 0, off: 0, leave: 0, ops: 0, absent: 0, present: 0 }, 
+            Night: { roster: 0, off: 0, leave: 0, ops: 0, absent: 0, present: 0 }
+        };
+
+        if(!targetDayColIndex) return;
+        let nextDayColIndex = colMap.days[operationalDate + 1];
+
+        for (let i = 1; i < roster.length; i++) {
+            const emp = roster[i];
+            if (!emp || emp.length <= Math.max(colMap.id, colMap.name) || targetDayColIndex >= emp.length) continue;
+
+            let val = String(emp[targetDayColIndex]).trim().toUpperCase();
+            if (!val || String(emp[colMap.id]).trim() === "") continue;
+
+            let nextVal = (nextDayColIndex && nextDayColIndex < emp.length) ? String(emp[nextDayColIndex]).trim().toUpperCase() : "";
+            let pfx = val.charAt(0);
+
+            let isOff = val.endsWith("SO") || val.includes("OFF");
+            let isLeave = val.endsWith("L") || val.includes("CL") || val.includes("PL") || val.includes("EL") || val.includes("AL") || val.includes("-") || val.includes(">");
+            let isAbsent = val.endsWith("A") || val === (pfx + "A");
+            let isPresent = val.endsWith("P") || val === (pfx + "P");
+            let isStillInPlan = (!isOff && !isLeave && !isAbsent && !isPresent && val.length >= 1);
+
+            let targetShiftKey = null;
+
+            if (val.startsWith("DS3") || val.startsWith("P") || ((val.startsWith("DA1") || val.startsWith("DS2")) && isStillInPlan)) {
+                targetShiftKey = "PartTimer";
+                if (nextVal.endsWith("SO") || nextVal.includes("OFF") || nextVal.includes("SO")) {
+                    isOff = true; isStillInPlan = false; isAbsent = false; isPresent = false;
+                }
+            } 
+            else if (pfx === "M") targetShiftKey = "Morning";
+            else if (pfx === "G") targetShiftKey = "General";
+            else if (pfx === "D") targetShiftKey = "Day";
+            else if (pfx === "N") targetShiftKey = "Night";
+
+            if (!targetShiftKey) continue;
+
+            shifts[targetShiftKey].roster++;
+
+            if (isOff) {
+                shifts[targetShiftKey].off++;
+            } else if (isLeave) {
+                shifts[targetShiftKey].leave++;
+            } else if (isAbsent) {
+                shifts[targetShiftKey].absent++;
+                shifts[targetShiftKey].ops++;
+            } else if (isPresent) {
+                shifts[targetShiftKey].present++;
+                shifts[targetShiftKey].ops++;
+            } else if (isStillInPlan) {
+                shifts[targetShiftKey].ops++; 
+            }
+        }
+
+        let keys = ["Morning", "General", "Day", "PartTimer", "Night"];
+        let totalRoster = 0, totalOff = 0, totalLeave = 0, totalOps = 0, totalAbs = 0, totalPres = 0;
+
+        keys.forEach(k => {
+            totalRoster += shifts[k].roster; totalOff += shifts[k].off; totalLeave += shifts[k].leave;
+            totalOps += shifts[k].ops; totalAbs += shifts[k].absent; totalPres += shifts[k].present;
+        });
+
+        const pct = (num, den) => den > 0 ? Math.round((num / den) * 100) + "%" : "0%";
+        const availPct = (pres, rost) => rost > 0 ? Math.round((pres / rost) * 100) + "%" : "0%";
+
+        const tbody = document.getElementById("threepTableBody");
+        tbody.innerHTML = `
+            <tr>
+                <td>Roster</td>
+                <td>${shifts.Morning.roster}</td><td>${shifts.General.roster}</td><td>${shifts.Day.roster}</td><td>${shifts.PartTimer.roster}</td><td>${shifts.Night.roster}</td>
+                <td style="background:#f1f3f4;">${totalRoster}</td>
+            </tr>
+            <tr>
+                <td>Week Off</td>
+                <td>${shifts.Morning.off}</td><td>${shifts.General.off}</td><td>${shifts.Day.off}</td><td>${shifts.PartTimer.off}</td><td>${shifts.Night.off}</td>
+                <td style="background:#f1f3f4;">${totalOff}</td>
+            </tr>
+            <tr>
+                <td>Leave (Approved)</td>
+                <td>${shifts.Morning.leave}</td><td>${shifts.General.leave}</td><td>${shifts.Day.leave}</td><td>${shifts.PartTimer.leave}</td><td>${shifts.Night.leave}</td>
+                <td style="background:#f1f3f4;">${totalLeave}</td>
+            </tr>
+            <tr class="threep-row-ops">
+                <td>Planned by OPS</td>
+                <td>${shifts.Morning.ops}</td><td>${shifts.General.ops}</td><td>${shifts.Day.ops}</td><td>${shifts.PartTimer.ops}</td><td>${shifts.Night.ops}</td>
+                <td style="background:#C8E6C9;">${totalOps}</td>
+            </tr>
+            <tr>
+                <td>Absenteeism</td>
+                <td>${shifts.Morning.absent}</td><td>${shifts.General.absent}</td><td>${shifts.Day.absent}</td><td>${shifts.PartTimer.absent}</td><td>${shifts.Night.absent}</td>
+                <td style="background:#f1f3f4;">${totalAbs}</td>
+            </tr>
+            <tr style="background:#FFFDE7;">
+                <td>Present on Floor</td>
+                <td>${shifts.Morning.present}</td><td>${shifts.General.present}</td><td>${shifts.Day.present}</td><td>${shifts.PartTimer.present}</td><td>${shifts.Night.present}</td>
+                <td style="background:#FFF9C4;">${totalPres}</td>
+            </tr>
+            <tr class="threep-row-yellow">
+                <td>Physical Present %</td>
+                <td>${pct(shifts.Morning.present, shifts.Morning.ops)}</td><td>${pct(shifts.General.present, shifts.General.ops)}</td><td>${pct(shifts.Day.present, shifts.Day.ops)}</td><td>${pct(shifts.PartTimer.present, shifts.PartTimer.ops)}</td><td>${pct(shifts.Night.present, shifts.Night.ops)}</td>
+                <td style="font-weight:bold; background:#FFF59D;">${pct(totalPres, totalOps)}</td>
+            </tr>
+            <tr>
+                <td>Week off %</td>
+                <td>${pct(shifts.Morning.off, shifts.Morning.roster)}</td><td>${pct(shifts.General.off, shifts.General.roster)}</td><td>${pct(shifts.Day.off, shifts.Day.roster)}</td><td>${pct(shifts.PartTimer.off, shifts.PartTimer.roster)}</td><td>${pct(shifts.Night.off, shifts.Night.roster)}</td>
+                <td>${pct(totalOff, totalRoster)}</td>
+            </tr>
+            <tr>
+                <td>Leave (Approved) %</td>
+                <td>${pct(shifts.Morning.leave, shifts.Morning.roster)}</td><td>${pct(shifts.General.leave, shifts.General.roster)}</td><td>${pct(shifts.Day.leave, shifts.Day.roster)}</td><td>${pct(shifts.PartTimer.leave, shifts.PartTimer.roster)}</td><td>${pct(shifts.Night.leave, shifts.Night.roster)}</td>
+                <td>${pct(totalLeave, totalRoster)}</td>
+            </tr>
+            <tr class="threep-row-pink">
+                <td>Absenteeism %</td>
+                <td>${pct(shifts.Morning.absent, shifts.Morning.roster)}</td><td>${pct(shifts.General.absent, shifts.General.roster)}</td><td>${pct(shifts.Day.absent, shifts.Day.roster)}</td><td>${pct(shifts.PartTimer.absent, shifts.PartTimer.roster)}</td><td>${pct(shifts.Night.absent, shifts.Night.roster)}</td>
+                <td style="font-weight:bold; background:#FFCDD2;">${pct(totalAbs, totalRoster)}</td>
+            </tr>
+            <tr>
+                <td>Roster vs availability %</td>
+                <td>${availPct(shifts.Morning.present, shifts.Morning.roster)}</td><td>${availPct(shifts.General.present, shifts.General.roster)}</td><td>${availPct(shifts.Day.present, shifts.Day.roster)}</td><td>${availPct(shifts.PartTimer.present, shifts.PartTimer.roster)}</td><td>${availPct(shifts.Night.present, shifts.Night.roster)}</td>
+                <td style="font-weight:bold; background:#E0E0E0;">${availPct(totalPres, totalRoster)}</td>
+            </tr>
+        `;
+    }
+
+    function downloadThreePReportAsImage() {
+        const targetTable = document.getElementById("threepTable");
+        showToast("Generating full format image...");
+
+        const sWidth = targetTable.scrollWidth;
+        const sHeight = targetTable.scrollHeight;
+
+        html2canvas(targetTable, { 
+            scale: 2.5,                
+            useCORS: true, 
+            backgroundColor: "#ffffff",
+            width: sWidth,
+            height: sHeight,
+            windowWidth: sWidth,
+            windowHeight: sHeight
+        }).then(canvas => {
+            const imageLink = document.createElement("a");
+            imageLink.download = `3P_Attendance_Full_Report_${new Date().toISOString().split('T')[0]}.jpg`;
+            imageLink.href = canvas.toDataURL("image/jpeg", 0.95); 
+            document.body.appendChild(imageLink);
+            imageLink.click();
+            document.body.removeChild(imageLink);
+            showToast("✓ Downloaded successfully!");
+        }).catch(err => { 
+            console.error(err);
+            showToast("❌ Download Failed"); 
+        });
+    }
+
+    async function calculateDayWiseAttendance() {
+        if(roster.length === 0) await loadRoster();
+
+        const { operationalDate, operationalMonth } = getOperationalDateInfo();
+        const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        const currentMonthLabel = monthNames[operationalMonth];
+
+        const container = document.getElementById("daywiseResultContainer");
+        container.innerHTML = "";
+        
+        let htmlContent = "";
+
+        for (let d = operationalDate; d >= 1; d--) {
+            let dayData = getListsForDay(d);
+            let isToday = (d === operationalDate);
+
+            if (isToday) {
+                htmlContent += `
+                    <div class="shift-report-card" style="margin-bottom: 22px; border: 2px solid #1a73e8; box-shadow: 0 4px 15px rgba(26,115,232,0.15);">
+                        <div class="shift-title" style="background:#1a73e8; font-size: 15px; font-weight:700; padding: 14px;">
+                            <span>🌟 Today's Live Status</span>
+                            <span>${d} ${currentMonthLabel}</span>
+                        </div>
+                        <div class="ops-metrics-list" style="padding: 12px;">
+                            <div class="ops-metric-row highlight-green" onclick="viewDayCategoryList(${d}, 'present', 'Actually Present on Floor')">Actually Present <span>${dayData.present.length}</span></div>
+                            <div class="ops-metric-row highlight-orange" onclick="viewDayCategoryList(${d}, 'stillInPlan', 'Still in Plan (Waiting)')">Still in Plan (Waiting) <span>${dayData.stillInPlan.length}</span></div>
+                            <div class="ops-metric-row highlight-red" onclick="viewDayCategoryList(${d}, 'absent', 'Absent List')">Absent Count <span>${dayData.absent.length}</span></div>
+                            <div class="ops-metric-row highlight-purple" onclick="viewDayCategoryList(${d}, 'leave', 'Approved Leave List')">Approved Leaves <span>${dayData.leave.length}</span></div>
+                            <div class="ops-metric-row" onclick="viewDayCategoryList(${d}, 'weekOff', 'Week Off List')">Week Offs <span>${dayData.weekOff.length}</span></div>
+                        </div>
+                    </div>
+                    <h3 style="font-size: 14px; color: var(--text-muted); margin: 15px 0 12px 4px; font-weight: bold; border-left: 3px solid var(--text-muted); padding-left: 8px;">📋 Historical Tracker (From 1st to Yesterday)</h3>
+                `;
+            } else {
+                htmlContent += `
+                    <div class="shift-report-card" style="margin-bottom: 10px; background: #fafafa; border: 1px solid #e0e0e0;">
+                        <div class="shift-title" style="background:#5f6368; padding: 8px 12px; font-size: 13px;">
+                            <span>📅 Date: ${d} ${currentMonthLabel}</span>
+                            <span style="font-weight:normal; opacity:0.85;">Completed Summary</span>
+                        </div>
+                        <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; padding: 8px; text-align: center; font-size: 12px;">
+                            <div style="background:#e8f5e9; padding: 8px 4px; border-radius: 6px; cursor:pointer; font-weight:600; color:#2e7d32; border:1px solid #c8e6c9;" onclick="viewDayCategoryList(${d}, 'present', 'Present')">Pres<br><span style="font-size:14px;">${dayData.present.length}</span></div>
+                            <div style="background:#fff3e0; padding: 8px 4px; border-radius: 6px; cursor:pointer; font-weight:600; color:#e67e22; border:1px solid #ffe0b2;" onclick="viewDayCategoryList(${d}, 'stillInPlan', 'In Plan')">Plan<br><span style="font-size:14px;">${dayData.stillInPlan.length}</span></div>
+                            <div style="background:#fdeaea; padding: 8px 4px; border-radius: 6px; cursor:pointer; font-weight:600; color:#c62828; border:1px solid #ffcdd2;" onclick="viewDayCategoryList(${d}, 'absent', 'Absent')">Abs<br><span style="font-size:14px;">${dayData.absent.length}</span></div>
+                            <div style="background:#f3e5f5; padding: 8px 4px; border-radius: 6px; cursor:pointer; font-weight:600; color:#6a1b9a; border:1px solid #e1bee7;" onclick="viewDayCategoryList(${d}, 'leave', 'Leave')">Lv<br><span style="font-size:14px;">${dayData.leave.length}</span></div>
+                            <div style="background:#f1f3f4; padding: 8px 4px; border-radius: 6px; cursor:pointer; font-weight:600; color:#3c4043; border:1px solid #dcdcdc;" onclick="viewDayCategoryList(${d}, 'weekOff', 'Week Off')">Off<br><span style="font-size:14px;">${dayData.weekOff.length}</span></div>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        container.innerHTML = htmlContent;
+        container.style.display = "block";
+    }
+
+    function getColor(shift) {  
+        const s = String(shift).trim().toUpperCase();  
+        if (!s) return "pending";  
+        if (s.endsWith("P")) return "present";  
+        if (s.endsWith("SO") || s.includes("OFF")) return "off";  
+        if (s.endsWith("L") || s.includes("CL") || s.includes("EL")) return "leave";  
+        if (s.endsWith("A") || s === "MA" || s === "GA" || s === "DA" || s === "NA" || s === "PA") return "absent-day";  
+        return "other";  
+    }  
+
+    function getMonthDetails(year, monthIndex) {
+        const firstDayIndex = new Date(year, monthIndex, 1).getDay();
+        const totalDays = new Date(year, monthIndex + 1, 0).getDate();
+        return { firstDayIndex, totalDays };
+    }
+
+    async function searchRoster() {  
+        const id = document.getElementById("empid").value.trim();  
+        const resultDiv = document.getElementById("result");  
+        const selectedMonth = parseInt(document.getElementById("monthSelect").value);
+
+        if (id == "") { showToast("⚠️ Enter BA ID"); return; }  
+
+        document.getElementById("searchBtn").disabled = true;  
+        await loadRoster();  
+
+        let emp = null;  
+        for (let i = 1; i < roster.length; i++) {  
+            if (roster[i].length > colMap.id && String(roster[i][colMap.id]).trim() == id) { emp = roster[i]; break; }  
+        }  
+
+        if (emp == null) {  
+            resultDiv.innerHTML = "<div class='card'><h3 style='text-align:center; color: var(--text-muted);'>Employee ID Not Found</h3></div>";  
+            showToast("❌ ID Not Found");  
+            document.getElementById("searchBtn").disabled = false;
+            return;  
+        }  
+
+        const { firstDayIndex, totalDays } = getMonthDetails(targetYear, selectedMonth);
+        const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        const currentMonthLabel = monthNames[selectedMonth];  
+
+        let html = "<div class='card'>";  
+        html += "<div class='employeeName'>" + emp[colMap.name] + "</div>";  
+        html += "<div class='employeeId'><div><strong>ID :</strong> " + emp[colMap.id] + " | <strong>BA :</strong> " + (emp[colMap.ba] || emp[colMap.id]) + "</div><div><strong>Roster:</strong> " + currentMonthLabel + " " + targetYear + "</div></div>";  
+          
+        html += "<div class='calendar-header-grid'>";  
+        ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].forEach(day => { html += "<div class='weekday-label'>" + day + "</div>"; });  
+        html += "</div><div class='calendar'>";  
+
+        for (let b = 0; b < firstDayIndex; b++) { html += "<div class='blank-day'></div>"; }  
+
+        for (let d = 1; d <= totalDays; d++) {  
+            const dateString = String(d).padStart(2, '0') + " " + currentMonthLabel;  
+            const rosterIndex = colMap.days[d];   
+            let shift = (rosterIndex && rosterIndex < emp.length) ? String(emp[rosterIndex]).trim() : "";  
+
+            if (shift !== "") {  
+                html += "<div class='day " + getColor(shift) + "'><div class='day-date'>" + dateString + "</div><div class='shift-code'>" + shift + "</div></div>";  
+            } else {  
+                html += "<div class='day pending'><div class='day-date'>" + dateString + "</div><div class='updating-text'>Updating Soon</div></div>";  
+            }  
+        }  
+
+        html += "</div></div>";  
+        resultDiv.innerHTML = html;  
+        showToast("✓ Loaded successfully");  
+        document.getElementById("searchBtn").disabled = false;
+    }  
+
+    document.getElementById("empid").addEventListener("keypress", function(e) {  
+        if (e.key === "Enter" && !document.getElementById("searchBtn").disabled) searchRoster();  
+    });  
+
+    initMonthLogic();
+    loadRoster();          
+</script>
+
+</body>  
 </html>
