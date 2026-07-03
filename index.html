@@ -676,241 +676,6 @@
         .calendar-header-grid { margin-bottom: 6px; text-align: center; font-weight: 600; color: var(--text-muted); font-size: 13px; }  
         .weekday-label { padding: 6px 0; background: #f1f3f4; border-radius: 4px; }  
         
-        .day             font-weight: normal;
-            color: #333;
-            background: rgba(255, 255, 255, 0.7);
-            padding: 2px 8px;
-            border-radius: 20px;
-            border: 1px solid rgba(0,0,0,0.05);
-        }
-
-        /* Shift Selection Buttons Grid */
-        .shift-selection-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-            margin-bottom: 15px;
-        }
-
-        .shift-select-btn {
-            padding: 14px;
-            font-size: 14px;
-            font-weight: 600;
-            border-radius: 8px;
-            border: 1px solid var(--border-color);
-            background: #fff;
-            cursor: pointer;
-            text-align: center;
-            transition: all 0.2s;
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-            align-items: center;
-        }
-
-        .shift-select-btn:hover {
-            border-color: var(--primary-color);
-            background-color: #f4f8fe;
-            color: var(--primary-color);
-        }
-
-        .month-calendar-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            margin-top: 10px;
-        }
-
-        .month-btn {
-            padding: 12px;
-            border: 1px solid var(--border-color);
-            background: #fff;
-            border-radius: 6px;
-            font-size: 14px;
-            font-weight: 500;
-            cursor: pointer;
-            text-align: center;
-            color: var(--text-main);
-            transition: all 0.2s;
-        }
-
-        .month-btn:hover {
-            background: #e8f0fe;
-            border-color: var(--primary-color);
-            color: var(--primary-color);
-        }
-
-        /* Day Wise Date Input Styling */
-        .daywise-container {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        /* Advanced Analytics Cards Design */
-        .analytics-output-container {
-            margin-top: 15px;
-            border-top: 1px solid var(--border-color);
-            padding-top: 15px;
-        }
-
-        .shift-report-card {
-            background: #fff;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            border: 1px solid var(--border-color);
-            overflow: hidden;
-        }
-        
-        .shift-title {
-            font-size: 14px;
-            font-weight: 600;
-            color: #fff;
-            display: flex;
-            justify-content: space-between;
-            background: var(--primary-color);
-            padding: 12px 14px;
-        }
-
-        .ops-metrics-list {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            padding: 15px;
-        }
-
-        .ops-metric-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 14px;
-            background: #f1f3f4;
-            border-radius: 6px;
-            font-size: 14px;
-            font-weight: 500;
-            border-left: 4px solid #78909c;
-            cursor: pointer;
-            transition: transform 0.2s, background-color 0.2s;
-        }
-
-        .ops-metric-row:hover {
-            transform: scale(1.02);
-            background-color: #e2e4e6;
-        }
-
-        .ops-metric-row.highlight-blue { border-left-color: #1a73e8; background: #f4f8fe; font-weight: 600; }
-        .ops-metric-row.highlight-blue:hover { background-color: #e3edfc; }
-        
-        .ops-metric-row.highlight-green { border-left-color: #2e7d32; background: #e8f5e9; font-weight: bold; }
-        .ops-metric-row.highlight-green:hover { background-color: #dbf0dc; }
-        
-        .ops-metric-row.highlight-red { border-left-color: #c62828; background: #fdeaea;}
-        .ops-metric-row.highlight-red:hover { background-color: #fbd5d5; }
-        
-        .ops-metric-row.highlight-purple { border-left-color: #6a1b9a; background: #f3e5f5; }
-        .ops-metric-row.highlight-purple:hover { background-color: #ebd3f1; }
-        
-        .ops-metric-row.highlight-orange { border-left-color: #e67e22; background: #fff3e0; }
-        .ops-metric-row.highlight-orange:hover { background-color: #ffe6cc; }
-
-        .ops-metric-row span {
-            font-size: 16px;
-            font-weight: 700;
-        }
-
-        /* Toast UI */
-        .toast-container {
-            position: fixed;
-            bottom: 24px;
-            left: 50%;
-            transform: translateX(-50%) translateY(100px);
-            background-color: #323232;
-            color: #ffffff;
-            padding: 12px 24px;
-            border-radius: 8px;
-            font-size: 14px;
-            z-index: 1010;
-            opacity: 0;
-            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease;
-            pointer-events: none;
-        }
-
-        .toast-container.show {
-            transform: translateX(-50%) translateY(0);
-            opacity: 1;
-        }
-
-        /* Layout Main Body UI */  
-        .container {  
-            max-width: 900px;  
-            margin: auto;  
-            padding: 20px 15px;  
-        }  
-
-        .card {  
-            background: var(--card-bg);  
-            padding: 24px;  
-            border-radius: 8px;  
-            border: 1px solid var(--border-color);
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);  
-        }  
-
-        .search-container {  
-            display: flex;  
-            flex-direction: column;  
-            gap: 16px;  
-        }  
-
-        .form-row {  
-            display: flex;  
-            gap: 12px;  
-        }  
-
-        input, select {  
-            padding: 12px 16px;  
-            font-size: 15px;  
-            border-radius: 6px;  
-            border: 1px solid var(--border-color);  
-            outline: none;  
-            background-color: #fff;  
-        }  
-
-        input { flex: 2; }  
-        select {  
-            flex: 1;  
-            cursor: pointer;
-            appearance: none;
-            background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%235f6368' stroke-width='3'><path d='M6 9l6 6 6-6'/></svg>");
-            background-repeat: no-repeat;
-            background-position: right 14px center;
-            padding-right: 35px;
-        }  
-
-        select:disabled { background-color: #f1f3f4; cursor: not-allowed; color: #80868b; }
-
-        button.search-btn {  
-            width: 100%;  
-            padding: 12px;  
-            background: var(--primary-color);  
-            color: #fff;  
-            border: none;  
-            border-radius: 6px;  
-            font-size: 16px;  
-            font-weight: 500;  
-            cursor: pointer;  
-        }  
-
-        button.search-btn:disabled { background: #ccdecb; color: #80868b; }  
-
-        #result { margin-top: 20px; }  
-
-        .employeeName { font-size: 22px; font-weight: 600; color: var(--primary-color); margin-bottom: 6px; }  
-        .employeeId { color: var(--text-muted); font-size: 14px; margin-bottom: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 15px; display: flex; justify-content: space-between; }  
-
-        .calendar-header-grid, .calendar { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }  
-        .calendar-header-grid { margin-bottom: 6px; text-align: center; font-weight: 600; color: var(--text-muted); font-size: 13px; }  
-        .weekday-label { padding: 6px 0; background: #f1f3f4; border-radius: 4px; }  
-        
         .day { padding: 10px 4px; border-radius: 6px; text-align: center; font-weight: bold; color: white; min-height: 70px; display: flex; flex-direction: column; justify-content: center; align-items: center; }  
         .blank-day { background: #f8f9fa; border: 1px dashed var(--border-color); border-radius: 6px; }  
         .day-date { font-size: 12px; font-weight: normal; opacity: 0.9;}  
@@ -939,24 +704,81 @@
 <body>  
 
 <header>
-    <button class="menu-btn" onclick="toggleSidebar()">
-        <span></span><span style="margin: 5px 0;"></span><span></span>
-    </button>
-    <div class="header-title">Roster Dashboard</div>
+    <div class="header-title">Outbound FC Operations Portal</div>
 </header>  
 
-<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+<div class="slot-bar">
+    <div class="slot-tab active" id="slotEmp" onclick="switchSlot('Employee')">👤 Employee View</div>
+    <div class="slot-tab" id="slotOps" onclick="switchSlot('Ops')">⚙️ Ops Controls</div>
+</div>
 
-<div class="sidebar" id="sidebar">
-    <div class="sidebar-header">
-        <div class="sidebar-title">Menu Options</div>
-        <button class="close-btn" onclick="toggleSidebar()">&times;</button>
+<div id="screenEmployee" class="view-screen active">
+    <div class="container">  
+        <div class="card">  
+            <div class="search-container">  
+                <div class="form-row">
+                    <input id="empid" type="text" placeholder="Enter Employee BA ID">  
+                    <select id="monthSelect">
+                        <option value="0">January</option><option value="1">February</option>
+                        <option value="2">March</option><option value="3">April</option>
+                        <option value="4">May</option><option value="5">June</option>
+                        <option value="6">July</option><option value="7">August</option>
+                        <option value="8">September</option><option value="9">October</option>
+                        <option value="10">November</option><option value="11">December</option>
+                    </select>
+                </div>
+                <button id="searchBtn" class="search-btn" onclick="searchRoster()" disabled>Search Roster</button>  
+            </div>  
+        </div>  
+        <div id="result"></div>  
+    </div>  
+</div>
+
+<div id="screenAuthGate" class="view-screen">
+    <div class="auth-container" id="authBox">
+        </div>
+</div>
+
+<div id="screenOpsDashboard" class="view-screen">
+    <div class="container">
+        <div id="adminApprovalSection" class="admin-panel-card" style="display: none;">
+            <div class="admin-header-title">🛡️ Admin Authorization Hub (Pending Approvals)</div>
+            <div id="adminQueueBody">
+                </div>
+            
+            <div class="admin-header-title" style="margin-top: 25px;">👥 Approved Active Users (Manage Access)</div>
+            <div id="adminActiveUsersBody">
+                </div>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h2 id="opsDashboardTitle" style="font-size: 18px; font-weight: 600; color:#37474F;">Operational Intelligence Dashboards</h2>
+            <button class="action-mini-btn" style="background:#546E7A;" onclick="logoutOps()">🔒 Terminate Session</button>
+        </div>
+
+        <div class="ops-grid">
+            <div class="ops-menu-card" onclick="openHistoryModal()">
+                <div class="ops-icon-frame">📅</div>
+                <div class="ops-card-label">View History Roster</div>
+            </div>
+            <div class="ops-menu-card" onclick="openShiftSelectionModal()">
+                <div class="ops-icon-frame">📊</div>
+                <div class="ops-card-label">Shift wise attendance</div>
+            </div>
+            <div class="ops-menu-card" onclick="openDayWiseModal()">
+                <div class="ops-icon-frame">📆</div>
+                <div class="ops-card-label">Day wise attendance</div>
+            </div>
+            <div class="ops-menu-card" onclick="openThreePModal()">
+                <div class="ops-icon-frame">📋</div>
+                <div class="ops-card-label">3P Attendance Summary</div>
+            </div>
+            <div class="ops-menu-card" onclick="openMandaysModal()">
+                <div class="ops-icon-frame">⚙️</div>
+                <div class="ops-card-label">Mandays Management</div>
+            </div>
+        </div>
     </div>
-    <div class="sidebar-menu-item" onclick="openHistoryModal()">📅 View History Roster</div>
-    <div class="sidebar-menu-item" onclick="openShiftSelectionModal()">📊 Shift wise attendance</div>
-    <div class="sidebar-menu-item" onclick="openDayWiseModal()">📅 Day wise attendance</div>
-    <div class="sidebar-menu-item" onclick="openThreePModal()">📊 3P Attendance Summary</div>
-    <div class="sidebar-menu-item" onclick="openMandaysModal()">⚙️ Mandays</div>
 </div>
 
 <div class="sidebar-overlay" id="modalOverlay" onclick="closeHistoryModal()"></div>
@@ -1014,7 +836,6 @@
     </div>
 </div>
 
-<!-- Mandays Modal Window -->
 <div class="sidebar-overlay" id="mandaysOverlay" onclick="closeMandaysModal()"></div>
 <div class="modal-window" id="mandaysModal" style="max-width: 500px; width: 95%;">
     <div class="modal-header">
@@ -1069,41 +890,272 @@
 
 <div class="toast-container" id="toastBox"><span id="toastText"></span></div>
 
-<div class="container">  
-    <div class="card">  
-        <div class="search-container">  
-            <div class="form-row">
-                <input id="empid" type="text" placeholder="Enter Employee BA ID">  
-                <select id="monthSelect">
-                    <option value="0">January</option><option value="1">February</option>
-                    <option value="2">March</option><option value="3">April</option>
-                    <option value="4">May</option><option value="5">June</option>
-                    <option value="6">July</option><option value="7">August</option>
-                    <option value="8">September</option><option value="9">October</option>
-                    <option value="10">November</option><option value="11">December</option>
-                </select>
-            </div>
-            <button id="searchBtn" class="search-btn" onclick="searchRoster()" disabled>Search Roster</button>  
-        </div>  
-    </div>  
-    <div id="result"></div>  
-</div>  
-
 <script>  
     const BASE_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQnIS1j49dSQiOC-PjeKJSq7MIf0dnM7hW5deAJU6WgjSkDB0DFi92Z4C3kKvtXv2Awd_tZ5w6mftFg/pub?gid=0&single=true&output=csv";   
     let roster = [];  
     let targetYear = new Date().getFullYear();
 
-    // Structural Column Mappings (Protected Layout Defaults)
     let colMap = { id: 2, ba: 3, name: 4, days: {} };
-
     let activeLists = { rosterPlan:[], weekOff:[], leave:[], scheduledOps:[], stillInPlan:[], absent:[], present:[] };
 
-    function toggleSidebar() {
-        document.getElementById("sidebar").classList.toggle("active");
-        document.getElementById("sidebarOverlay").classList.toggle("active");
+    // LOCAL STORAGE SYSTEM ARCHITECTURE
+    let usersDB = JSON.parse(localStorage.getItem('ops_users_db')) || { "imrul": { password: "imrul@123" } };
+    let pendingApprovals = JSON.parse(localStorage.getItem('ops_pending_db')) || {}; 
+    let currentSessionUser = null;
+
+    function saveStorage() {
+        localStorage.setItem('ops_users_db', JSON.stringify(usersDB));
+        localStorage.setItem('ops_pending_db', JSON.stringify(pendingApprovals));
     }
 
+    // View Switching Controls Matrix
+    function switchSlot(targetSlot) {
+        document.getElementById("slotEmp").classList.remove("active");
+        document.getElementById("slotOps").classList.remove("active");
+        
+        document.getElementById("screenEmployee").classList.remove("active");
+        document.getElementById("screenAuthGate").classList.remove("active");
+        document.getElementById("screenOpsDashboard").classList.remove("active");
+
+        if(targetSlot === 'Employee') {
+            document.getElementById("slotEmp").classList.add("active");
+            document.getElementById("screenEmployee").classList.add("active");
+        } else if(targetSlot === 'Ops') {
+            document.getElementById("slotOps").classList.add("active");
+            if(currentSessionUser) {
+                document.getElementById("screenOpsDashboard").classList.add("active");
+                renderAdminPanelIfRequired();
+            } else {
+                document.getElementById("screenAuthGate").classList.add("active");
+                renderAuthView('login');
+            }
+        }
+    }
+
+    // Dynamic Auth View Engine
+    function renderAuthView(mode) {
+        const authBox = document.getElementById("authBox");
+        if(mode === 'login') {
+            authBox.innerHTML = `
+                <div class="auth-title">🔐 Operational Authentication</div>
+                <div class="auth-form-group">
+                    <label>User ID</label>
+                    <input type="text" id="authUid" class="auth-input" placeholder="Enter User ID">
+                </div>
+                <div class="auth-form-group">
+                    <label>Password</label>
+                    <input type="password" id="authPass" class="auth-input" placeholder="Password">
+                </div>
+                <button class="search-btn" onclick="executeLogin()">Access Ops Desk</button>
+                <div class="auth-links">
+                    <button class="auth-link-btn" onclick="renderAuthView('forgot')">Forgot Password?</button>
+                    <button class="auth-link-btn" onclick="renderAuthView('create')">Create User ID</button>
+                </div>
+            `;
+        } else if(mode === 'create') {
+            authBox.innerHTML = `
+                <div class="auth-title">📝 Register User Identity</div>
+                <div class="auth-form-group">
+                    <label>Desired User ID</label>
+                    <input type="text" id="regUid" class="auth-input" placeholder="e.g. Imrul" oninput="updatePasswordPreview(this.value)">
+                </div>
+                <div class="auth-form-group">
+                    <label>Assigned Password (Auto Generated)</label>
+                    <div class="password-preview-box" id="passPreview">Awaiting User ID input...</div>
+                </div>
+                <p style="font-size:11px; color:var(--text-muted); margin-bottom:15px; line-height:1.3;">*Note: This credentials profile requires structural verification and approval from the master administrator before access is granted.</p>
+                <button class="search-btn" style="background:#2E7D32;" onclick="executeRegistration()">Submit Registration Request</button>
+                <div class="auth-links" style="justify-content: center;">
+                    <button class="auth-link-btn" onclick="renderAuthView('login')">Return to Sign In</button>
+                </div>
+            `;
+        } else if(mode === 'forgot') {
+            authBox.innerHTML = `
+                <div class="auth-title">🔍 Credential Extraction</div>
+                <div class="auth-form-group">
+                    <label>Enter Registered User ID</label>
+                    <input type="text" id="forgotUid" class="auth-input" placeholder="Enter User ID">
+                </div>
+                <div id="forgotResponseContainer"></div>
+                <button class="search-btn" onclick="executeForgotPasswordRecovery()">Recover Password</button>
+                <div class="auth-links" style="justify-content: center; margin-top:15px;">
+                    <button class="auth-link-btn" onclick="renderAuthView('login')">Return to Sign In</button>
+                </div>
+            `;
+        }
+    }
+
+    function updatePasswordPreview(val) {
+        const preview = document.getElementById("passPreview");
+        const sanitized = val.trim();
+        if(sanitized.length > 0) {
+            preview.innerText = `Generated Password: ${sanitized}@123`;
+        } else {
+            preview.innerText = "Awaiting User ID input...";
+        }
+    }
+
+    function executeLogin() {
+        const uid = document.getElementById("authUid").value.trim().toLowerCase();
+        const pass = document.getElementById("authPass").value;
+
+        if(!uid || !pass) { showToast("⚠️ All fields required!"); return; }
+
+        // Hardcoded Master Admin Override Bypass Access Route
+        if(uid === "admin" && pass === "admin@123") {
+            currentSessionUser = "MASTER_ADMIN";
+            showToast("🛡️ Master Session Authorized");
+            switchSlot('Ops');
+            return;
+        }
+
+        if(usersDB[uid]) {
+            if(usersDB[uid].password === pass) {
+                currentSessionUser = uid;
+                showToast("✓ Authentication Successful");
+                switchSlot('Ops');
+            } else {
+                showToast("❌ Invalid Password Configuration.");
+            }
+        } else if (pendingApprovals[uid]) {
+            showToast("❌ Access Denied: Awaiting Admin Approval.");
+        } else {
+            showToast("❌ User ID Profile Non-Existent.");
+        }
+    }
+
+    function executeRegistration() {
+        const uidInput = document.getElementById("regUid").value.trim();
+        const uidLower = uidInput.toLowerCase();
+
+        if(!uidInput) { showToast("⚠️ Provide a valid User ID"); return; }
+        if(uidLower === "admin" || usersDB[uidLower] || pendingApprovals[uidLower]) {
+            showToast("⚠️ ID Reserved or Already Claimed.");
+            return;
+        }
+
+        const generatedPassword = uidInput + "@123";
+        pendingApprovals[uidLower] = {
+            displayName: uidInput,
+            password: generatedPassword
+        };
+
+        saveStorage();
+        showToast("📥 Request Logged! Awaiting Approval.");
+        renderAuthView('login');
+    }
+
+    function executeForgotPasswordRecovery() {
+        const uid = document.getElementById("forgotUid").value.trim().toLowerCase();
+        const respFrame = document.getElementById("forgotResponseContainer");
+
+        if(!uid) { showToast("⚠️ Enter User ID"); return; }
+
+        if(uid === "admin") {
+            respFrame.innerHTML = `<div class="password-preview-box" style="color:#c62828; border-color:#c62828; background:#fdeaea;">Master Admin profile credentials must be recovered via root terminal files.</div>`;
+            return;
+        }
+
+        if(usersDB[uid]) {
+            respFrame.innerHTML = `
+                <div class="password-preview-box">
+                    <strong>Profile Located!</strong><br>
+                    User ID: ${uid}<br>
+                    Password: <strong>${usersDB[uid].password}</strong>
+                </div>
+            `;
+            showToast("✓ Record Extracted");
+        } else if(pendingApprovals[uid]) {
+            respFrame.innerHTML = `<div class="password-preview-box" style="color:#e67e22; border-color:#e67e22; background:#fff3e0;">Profile request exists but remains in unauthorized Admin Approval Queue.</div>`;
+        } else {
+            respFrame.innerHTML = `<div class="password-preview-box" style="color:#c62828; border-color:#c62828; background:#fdeaea;">No record matching this ID exists inside system layers.</div>`;
+        }
+    }
+
+    function renderAdminPanelIfRequired() {
+        const panel = document.getElementById("adminApprovalSection");
+        const queueBody = document.getElementById("adminQueueBody");
+        const activeUsersBody = document.getElementById("adminActiveUsersBody");
+        const dashTitle = document.getElementById("opsDashboardTitle");
+        
+        if(currentSessionUser !== "MASTER_ADMIN") {
+            panel.style.display = "none";
+            dashTitle.innerText = `Operational Intelligence Dashboards (${currentSessionUser.toUpperCase()})`;
+            return;
+        }
+
+        panel.style.display = "block";
+        dashTitle.innerText = "🛡️ Master Admin Control Center";
+        queueBody.innerHTML = "";
+        activeUsersBody.innerHTML = "";
+
+        // Render Pending Queue
+        const pendingKeys = Object.keys(pendingApprovals);
+        if(pendingKeys.length === 0) {
+            queueBody.innerHTML = `<p style="font-size:13px; color:var(--text-muted); font-style:italic; text-align:center; padding:10px;">Zero structural requests pending execution in queue loop.</p>`;
+        } else {
+            pendingKeys.forEach(key => {
+                const item = pendingApprovals[key];
+                queueBody.innerHTML += `
+                    <div class="approval-row">
+                        <div style="font-size:14px; font-weight:600;">👤 ID: <span style="color:var(--primary-color);">${item.displayName}</span> (Pass: ${item.password})</div>
+                        <div class="action-btn-group">
+                            <button class="action-mini-btn" style="background:#2E7D32;" onclick="adminProcessAuthorize('${key}', true)">Approve</button>
+                            <button class="action-mini-btn" style="background:#C62828;" onclick="adminProcessAuthorize('${key}', false)">Reject</button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        // Render Active Users List (Excluding master admin itself)
+        const activeKeys = Object.keys(usersDB);
+        if(activeKeys.length === 0) {
+            activeUsersBody.innerHTML = `<p style="font-size:13px; color:var(--text-muted); font-style:italic; text-align:center; padding:10px;">No registered users found inside database.</p>`;
+        } else {
+            activeKeys.forEach(key => {
+                activeUsersBody.innerHTML += `
+                    <div class="approval-row" style="background:#e8f0fe;">
+                        <div style="font-size:14px; font-weight:600; color:#1a73e8;">🟢 Active User: <strong>${key}</strong> (Pass: ${usersDB[key].password})</div>
+                        <div class="action-btn-group">
+                            <button class="action-mini-btn" style="background:#D32F2F;" onclick="adminRevokeAccess('${key}')">✕ Revoke Access</button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+    }
+
+    function adminProcessAuthorize(key, isApproved) {
+        if(isApproved) {
+            usersDB[key] = {
+                password: pendingApprovals[key].password
+            };
+            showToast(`✓ Profile '${pendingApprovals[key].displayName}' authorized.`);
+        } else {
+            showToast(`✕ Registration rejected.`);
+        }
+        delete pendingApprovals[key];
+        saveStorage();
+        renderAdminPanelIfRequired();
+    }
+
+    function adminRevokeAccess(key) {
+        if(confirm(`Are you sure you want to remove all access for user: '${key}'?`)) {
+            delete usersDB[key];
+            saveStorage();
+            showToast(`✕ Access revoked. User '${key}' blocked.`);
+            renderAdminPanelIfRequired();
+        }
+    }
+
+    function logoutOps() {
+        currentSessionUser = null;
+        showToast("🔒 Session terminated safely.");
+        switchSlot('Ops');
+    }
+
+    // ================= ROSTER ANALYTICS & CALCULATION ENGINE =================
     function showToast(msg) {
         const toast = document.getElementById("toastBox");
         document.getElementById("toastText").innerText = msg;
@@ -1112,7 +1164,6 @@
     }
 
     function openHistoryModal() {
-        toggleSidebar();
         document.getElementById("historyModal").classList.add("active");
         document.getElementById("modalOverlay").classList.add("active");
     }
@@ -1123,7 +1174,6 @@
     }
 
     function openShiftSelectionModal() {
-        if(document.getElementById("sidebar").classList.contains("active")) toggleSidebar();
         document.getElementById("shiftResultContainer").style.display = "none";
         document.getElementById("shiftModal").classList.add("active");
         document.getElementById("shiftOverlay").classList.add("active");
@@ -1135,7 +1185,6 @@
     }
 
     function openDayWiseModal() {
-        toggleSidebar();
         calculateDayWiseAttendance();
         document.getElementById("daywiseModal").classList.add("active");
         document.getElementById("daywiseOverlay").classList.add("active");
@@ -1147,7 +1196,6 @@
     }
 
     function openMandaysModal() {
-        toggleSidebar();
         calculateMandaysSummary();
         document.getElementById("mandaysModal").classList.add("active");
         document.getElementById("mandaysOverlay").classList.add("active");
@@ -1159,7 +1207,6 @@
     }
 
     function openThreePModal() {
-        toggleSidebar();
         generateThreePReport();
         document.getElementById("threepModal").classList.add("active");
         document.getElementById("threepOverlay").classList.add("active");
@@ -1173,13 +1220,13 @@
     function selectHistoryMonth(monthIdx) {
         document.getElementById("monthSelect").value = monthIdx;
         closeHistoryModal();
-        showToast("Month switched. Click Search to view.");
+        showToast("Month switched. Run Employee Search if required.");
     }
 
     function resetToCurrentMonth() {
         initMonthLogic();
         closeHistoryModal();
-        showToast("Returned to Current Month");
+        showToast("Returned to Current Month Setup");
     }
 
     function getOperationalDateInfo() {
@@ -1217,7 +1264,6 @@
         }
     }
 
-    // Bug Fix: Enhanced Premium Parser for Handling Multi-line fields inside CSV 
     function parseCSVLine(text) {
         let p = '', r = [];
         let q = false;
@@ -1263,7 +1309,6 @@
             const res = await fetch(BASE_CSV_URL + cacheBuster, { cache: "no-store" });  
             const txt = await res.text();  
             
-            // Bug Fix: Handle standard carriage return safely across different OS formats
             const cleanRows = txt.replace(/\r/g, "").split("\n");
             roster = cleanRows.filter(row => row.trim() !== "").map(r => parseCSVLine(r));  
             
@@ -1305,7 +1350,6 @@
         document.getElementById("glassPopup").classList.remove("active");
     }
 
-    // Bug Fix: Isolated Loop & Empty Roster Row Skip Guard to avoid breaking analytics dashboards
     function getListsForDay(targetDay) {
         let dayLists = { rosterPlan:[], weekOff:[], leave:[], scheduledOps:[], stillInPlan:[], absent:[], present:[] };
         const targetDayColIndex = colMap.days[targetDay];
@@ -1316,14 +1360,12 @@
 
         for (let i = 1; i < roster.length; i++) {
             const emp = roster[i];
-            // Bug Fix: Row Length Validation Protection
             if (!emp || emp.length <= Math.max(colMap.id, colMap.name) || targetDayColIndex >= emp.length) continue;
 
             let val = String(emp[targetDayColIndex]).trim().toUpperCase();
-            // Bug Fix: Skip entirely blank row spacers or layout separators in sheet
             if (!val || String(emp[colMap.id]).trim() === "") continue;
 
-            let nextVal = (nextDayColIndex && nextDayColIndex < emp.length) ? String(emp[nextDayColIndex]).trim().toUpperCase() : "";
+            let nextVal = (nextDayColIndex && nextDayColIndex < emp.length) ? String(nextDayColIndex).trim().toUpperCase() : "";
             let pfx = val.charAt(0);
 
             let isOff = val.endsWith("SO") || val.includes("OFF");
@@ -1499,9 +1541,9 @@
 
             tableRowsHtml += `
                 <tr style="${rowStyle}">
-                    <td style="padding: 12px 10px; border: 1px solid var(--border-color); text-align: left;">📅 ${d} ${currentMonthLabel}</td>
-                    <td style="padding: 12px 10px; border: 1px solid var(--border-color); text-align: center; font-size: 13px; text-transform: uppercase;">${displayLabel}</td>
-                    <td style="padding: 12px 10px; border: 1px solid var(--border-color); text-align: center; font-size: 16px; font-weight: bold;">${displayCount}</td>
+                    <td style="padding: 12px 10px; border: 1px solid #dadce0; text-align: left;">📅 ${d} ${currentMonthLabel}</td>
+                    <td style="padding: 12px 10px; border: 1px solid #dadce0; text-align: center; font-size: 13px; text-transform: uppercase;">${displayLabel}</td>
+                    <td style="padding: 12px 10px; border: 1px solid #dadce0; text-align: center; font-size: 16px; font-weight: bold;">${displayCount}</td>
                 </tr>
             `;
         }
@@ -1557,7 +1599,7 @@
             let val = String(emp[targetDayColIndex]).trim().toUpperCase();
             if (!val || String(emp[colMap.id]).trim() === "") continue;
 
-            let nextVal = (nextDayColIndex && nextDayColIndex < emp.length) ? String(emp[nextDayColIndex]).trim().toUpperCase() : "";
+            let nextVal = (nextDayColIndex && nextDayColIndex < emp.length) ? String(nextDayColIndex).trim().toUpperCase() : "";
             let pfx = val.charAt(0);
 
             let isOff = val.endsWith("SO") || val.includes("OFF");
@@ -1693,7 +1735,6 @@
             document.body.removeChild(imageLink);
             showToast("✓ Downloaded successfully!");
         }).catch(err => { 
-            console.error(err);
             showToast("❌ Download Failed"); 
         });
     }
@@ -1729,7 +1770,7 @@
                             <div class="ops-metric-row" onclick="viewDayCategoryList(${d}, 'weekOff', 'Week Off List')">Week Offs <span>${dayData.weekOff.length}</span></div>
                         </div>
                     </div>
-                    <h3 style="font-size: 14px; color: var(--text-muted); margin: 15px 0 12px 4px; font-weight: bold; border-left: 3px solid var(--text-muted); padding-left: 8px;">📋 Historical Tracker (From 1st to Yesterday)</h3>
+                    <h3 style="font-size: 14px; color: var(--text-muted); margin: 15px 0 12px 4px; font-weight: bold; border-left: 3px solid var(--text-muted); padding-left: 8px;">📋 Historical Tracker</h3>
                 `;
             } else {
                 htmlContent += `
