@@ -195,7 +195,7 @@
         
         .day { padding: 10px 4px; border-radius: 12px; text-align: center; font-weight: 700; color: white; min-height: 72px; display: flex; flex-direction: column; justify-content: center; align-items: center; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }  
         .blank-day { background: transparent; border-radius: 12px; }  
-        .day-date { font-size: 15px; font-weight: 800; opacity: 0.95; margin-bottom: 4px; }  
+        .day-date { font-size: 13px; font-weight: 800; opacity: 0.95; margin-bottom: 4px; }  
         .shift-code { font-size: 13px; font-weight: 600; }  
 
         /* Admin & Ops Panels */
@@ -434,23 +434,7 @@
     </div>
 </div>
 
-<div class="sidebar-overlay" id="firstLoginOverlay"></div>
-<div class="modal-window" id="firstLoginModal" style="z-index: 3000;">
-    <div class="modal-header">
-        <span>🔒 Mandatory Security Setup</span>
-    </div>
-    <div class="modal-body">
-        <p style="font-size: 14px; color: var(--ios-text-muted); margin-bottom: 16px; line-height: 1.4;">
-            আপনার একাউন্টটি সবেমাত্র অ্যাপ্রুভ হয়েছে। নিরাপত্তার স্বার্থে প্রথমবার প্রবেশের জন্য আপনার নিজস্ব একটি নতুন সিক্রেট পাসওয়ার্ড সেট করুন।
-        </p>
-        <div class="auth-form-group">
-            <label>Set New Permanent Password</label>
-            <input type="password" id="firstLoginNewPass" placeholder="Minimum 6 characters">
-        </div>
-        <button class="ios-btn ios-btn-green" style="margin-top: 10px;" onclick="executeFirstLoginPasswordSet()">Save & Continue</button>
-    </div>
-</div>
-
+<!-- Modal Overlays -->
 <div class="sidebar-overlay" id="passwordChangeOverlay" onclick="closePasswordChangeModal()"></div>
 <div class="modal-window" id="passwordChangeModal">
     <div class="modal-header">
@@ -709,16 +693,9 @@
                 if(user.Password === pass) {
                     if(user.Status.toLowerCase() === "approved") {
                         currentSessionUser = uid;
-                        
-                        // Check if it's user's first time login (FirstLogin flag !== false)
-                        if (user.FirstLogin !== "false") {
-                            document.getElementById("firstLoginOverlay").classList.add("active");
-                            document.getElementById("firstLoginModal").classList.add("active");
-                            showToast("⚠️ Set your permanent password!");
-                        } else {
-                            showToast("✓ Authentication Successful");
-                            switchSlot('Ops');
-                        }
+                        // Removed First Login Forced Password Reset logic
+                        showToast("✓ Authentication Successful");
+                        switchSlot('Ops');
                     } else {
                         showToast("❌ Access Denied: Awaiting Admin Approval.");
                     }
@@ -730,35 +707,6 @@
             }
         } catch(err) {
             showToast("❌ Network Error connecting to database.");
-        }
-    }
-
-    async function executeFirstLoginPasswordSet() {
-        const newPass = document.getElementById("firstLoginNewPass").value.trim();
-        if(!newPass || newPass.length < 6) {
-            showToast("⚠️ Password must be at least 6 characters.");
-            return;
-        }
-
-        showToast("🔄 Saving Permanent Password...");
-        try {
-            let patchRes = await fetch(`${SHEETDB_URL}/UserID/${currentSessionUser}`, {
-                method: 'PATCH',
-                headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
-                body: JSON.stringify({ data: { "Password": newPass, "FirstLogin": "false" } })
-            });
-
-            let result = await patchRes.json();
-            if(result.updated >= 1) {
-                document.getElementById("firstLoginOverlay").classList.remove("active");
-                document.getElementById("firstLoginModal").classList.remove("active");
-                showToast("🟢 Password Saved Successfully!");
-                switchSlot('Ops');
-            } else {
-                showToast("❌ Error updating password.");
-            }
-        } catch(err) {
-            showToast("❌ Critical Connection Error.");
         }
     }
 
@@ -787,7 +735,7 @@
                 method: 'POST',
                 headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    data: [{ "UserID": uidInput, "Password": passInput, "Status": "Pending", "FirstLogin": "true" }]
+                    data: [{ "UserID": uidInput, "Password": passInput, "Status": "Pending", "FirstLogin": "false" }] // Changed default to false
                 })
             });
             
@@ -1034,7 +982,7 @@
                 await fetch(`${SHEETDB_URL}/UserID/${userId}`, {
                     method: 'PATCH',
                     headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ data: { "Status": "Approved", "FirstLogin": "true" } })
+                    body: JSON.stringify({ data: { "Status": "Approved", "FirstLogin": "false" } })
                 });
                 showToast(`✓ Profile '${userId}' authorized.`);
             } else {
@@ -1144,10 +1092,12 @@
             const cleanRows = txt.replace(/\r/g, "").split("\n");
             roster = cleanRows.filter(row => row.trim() !== "").map(r => parseCSVLine(r));  
             
-            btn.innerText = "Search Roster";  
-            btn.disabled = false;  
+            if(btn) {
+                btn.innerText = "Search Roster";  
+                btn.disabled = false;  
+            }
         } catch (err) {  
-            btn.innerText = "Error Loading Data";  
+            if(btn) btn.innerText = "Error Loading Data";  
         }  
     }  
 
@@ -1421,9 +1371,18 @@
             totalOps += shifts[k].ops; totalAbs += shifts[k].absent; totalPres += shifts[k].present;
         });
 
+        // Basic standard percentage helper
         const pct = (num, den) => den > 0 ? Math.round((num / den) * 100) + "%" : "0%";
-        const availPct = (pres, rost) => rost > 0 ? Math.round((pres / rost) * 100) + "%" : "0%";
+        
+        // Custom Physical Present calculation helper (100% - (Leave% - Absent%))
+        const physPct = (leave, absent, ops) => {
+            if (ops <= 0) return "0%";
+            let lPct = (leave / ops) * 100;
+            let aPct = (absent / ops) * 100;
+            return Math.round(100 - (lPct - aPct)) + "%";
+        };
 
+        // All Custom Formula Row Updates Added Here
         document.getElementById("threepTableBody").innerHTML = `
             <tr><td>Roster</td><td>${shifts.Morning.roster}</td><td>${shifts.General.roster}</td><td>${shifts.Day.roster}</td><td>${shifts.PartTimer.roster}</td><td>${shifts.Night.roster}</td><td style="background:var(--ios-bg); font-weight:800;">${totalRoster}</td></tr>
             <tr><td>Week Off</td><td>${shifts.Morning.off}</td><td>${shifts.General.off}</td><td>${shifts.Day.off}</td><td>${shifts.PartTimer.off}</td><td>${shifts.Night.off}</td><td style="background:var(--ios-bg); font-weight:800;">${totalOff}</td></tr>
@@ -1431,11 +1390,11 @@
             <tr style="background:#E5F9E7;"><td>Planned by OPS</td><td>${shifts.Morning.ops}</td><td>${shifts.General.ops}</td><td>${shifts.Day.ops}</td><td>${shifts.PartTimer.ops}</td><td>${shifts.Night.ops}</td><td style="font-weight:800; color:#34C759;">${totalOps}</td></tr>
             <tr><td>Absenteeism</td><td>${shifts.Morning.absent}</td><td>${shifts.General.absent}</td><td>${shifts.Day.absent}</td><td>${shifts.PartTimer.absent}</td><td>${shifts.Night.absent}</td><td style="background:var(--ios-bg); font-weight:800;">${totalAbs}</td></tr>
             <tr style="background:#FFF5E5;"><td>Present on Floor</td><td>${shifts.Morning.present}</td><td>${shifts.General.present}</td><td>${shifts.Day.present}</td><td>${shifts.PartTimer.present}</td><td>${shifts.Night.present}</td><td style="font-weight:800; color:#FF9500;">${totalPres}</td></tr>
-            <tr style="background:#FFF5E5; font-weight:700;"><td>Physical Present %</td><td>${pct(shifts.Morning.present, shifts.Morning.ops)}</td><td>${pct(shifts.General.present, shifts.General.ops)}</td><td>${pct(shifts.Day.present, shifts.Day.ops)}</td><td>${pct(shifts.PartTimer.present, shifts.PartTimer.ops)}</td><td>${pct(shifts.Night.present, shifts.Night.ops)}</td><td style="font-weight:800; color:#FF9500;">${pct(totalPres, totalOps)}</td></tr>
+            <tr style="background:#FFF5E5; font-weight:700;"><td>Physical Present %</td><td>${physPct(shifts.Morning.leave, shifts.Morning.absent, shifts.Morning.ops)}</td><td>${physPct(shifts.General.leave, shifts.General.absent, shifts.General.ops)}</td><td>${physPct(shifts.Day.leave, shifts.Day.absent, shifts.Day.ops)}</td><td>${physPct(shifts.PartTimer.leave, shifts.PartTimer.absent, shifts.PartTimer.ops)}</td><td>${physPct(shifts.Night.leave, shifts.Night.absent, shifts.Night.ops)}</td><td style="font-weight:800; color:#FF9500;">${physPct(totalLeave, totalAbs, totalOps)}</td></tr>
             <tr><td>Week off %</td><td>${pct(shifts.Morning.off, shifts.Morning.roster)}</td><td>${pct(shifts.General.off, shifts.General.roster)}</td><td>${pct(shifts.Day.off, shifts.Day.roster)}</td><td>${pct(shifts.PartTimer.off, shifts.PartTimer.roster)}</td><td>${pct(shifts.Night.off, shifts.Night.roster)}</td><td style="font-weight:800;">${pct(totalOff, totalRoster)}</td></tr>
-            <tr><td>Leave %</td><td>${pct(shifts.Morning.leave, shifts.Morning.roster)}</td><td>${pct(shifts.General.leave, shifts.General.roster)}</td><td>${pct(shifts.Day.leave, shifts.Day.roster)}</td><td>${pct(shifts.PartTimer.leave, shifts.PartTimer.roster)}</td><td>${pct(shifts.Night.leave, shifts.Night.roster)}</td><td style="font-weight:800;">${pct(totalLeave, totalRoster)}</td></tr>
-            <tr style="background:#FFE5E5; color:var(--ios-red);"><td>Absenteeism %</td><td>${pct(shifts.Morning.absent, shifts.Morning.roster)}</td><td>${pct(shifts.General.absent, shifts.General.roster)}</td><td>${pct(shifts.Day.absent, shifts.Day.roster)}</td><td>${pct(shifts.PartTimer.absent, shifts.PartTimer.roster)}</td><td>${pct(shifts.Night.absent, shifts.Night.roster)}</td><td style="font-weight:800;">${pct(totalAbs, totalRoster)}</td></tr>
-            <tr style="background:var(--ios-bg); font-weight:700;"><td>Roster vs availability %</td><td>${availPct(shifts.Morning.present, shifts.Morning.roster)}</td><td>${availPct(shifts.General.present, shifts.General.roster)}</td><td>${availPct(shifts.Day.present, shifts.Day.roster)}</td><td>${availPct(shifts.PartTimer.present, shifts.PartTimer.roster)}</td><td>${availPct(shifts.Night.present, shifts.Night.roster)}</td><td style="font-weight:800;">${availPct(totalPres, totalRoster)}</td></tr>
+            <tr><td>Leave Approved %</td><td>${pct(shifts.Morning.leave, shifts.Morning.ops)}</td><td>${pct(shifts.General.leave, shifts.General.ops)}</td><td>${pct(shifts.Day.leave, shifts.Day.ops)}</td><td>${pct(shifts.PartTimer.leave, shifts.PartTimer.ops)}</td><td>${pct(shifts.Night.leave, shifts.Night.ops)}</td><td style="font-weight:800;">${pct(totalLeave, totalOps)}</td></tr>
+            <tr style="background:#FFE5E5; color:var(--ios-red);"><td>Absenteeism %</td><td>${pct(shifts.Morning.absent, shifts.Morning.ops)}</td><td>${pct(shifts.General.absent, shifts.General.ops)}</td><td>${pct(shifts.Day.absent, shifts.Day.ops)}</td><td>${pct(shifts.PartTimer.absent, shifts.PartTimer.ops)}</td><td>${pct(shifts.Night.absent, shifts.Night.ops)}</td><td style="font-weight:800;">${pct(totalAbs, totalOps)}</td></tr>
+            <tr style="background:var(--ios-bg); font-weight:700;"><td>Roster V/S Availability %</td><td>${pct(shifts.Morning.present, shifts.Morning.roster)}</td><td>${pct(shifts.General.present, shifts.General.roster)}</td><td>${pct(shifts.Day.present, shifts.Day.roster)}</td><td>${pct(shifts.PartTimer.present, shifts.PartTimer.roster)}</td><td>${pct(shifts.Night.present, shifts.Night.roster)}</td><td style="font-weight:800;">${pct(totalPres, totalRoster)}</td></tr>
         `;
     }
 
@@ -1526,17 +1485,31 @@
         return { firstDayIndex, totalDays };
     }
 
-    // UPDATED ROSTER SEARCH: Uses current month automatically without dropdown selector!
-    async function searchRoster() {  
+    // INTERNAL BACKGROUND AUTO-REFRESH SYSTEM
+    setInterval(async () => {
+        try {
+            const cacheBuster = "&_ts=" + new Date().getTime();  
+            const res = await fetch(BASE_CSV_URL + cacheBuster, { cache: "no-store" });  
+            const txt = await res.text();  
+            const cleanRows = txt.replace(/\r/g, "").split("\n");
+            roster = cleanRows.filter(row => row.trim() !== "").map(r => parseCSVLine(r));  
+            
+            // Silently update Employee View if it is currently open
+            if (document.getElementById("slotEmp").classList.contains("active") && document.getElementById("empid").value.trim() !== "" && document.getElementById("result").innerHTML.trim() !== "") {
+                silentSearchRoster();
+            }
+        } catch (err) {
+            console.log("Silent background data sync failed.");
+        }
+    }, 10000); // 10 Seconds internally refreshes
+
+    function silentSearchRoster() {
         const id = document.getElementById("empid").value.trim();  
         const resultDiv = document.getElementById("result");  
         const { operationalMonth } = getOperationalDateInfo();
-        const selectedMonth = operationalMonth; // Directly takes current month!
+        const selectedMonth = operationalMonth; 
 
-        if (id == "") { showToast("⚠️ Enter ID"); return; }  
-
-        document.getElementById("searchBtn").disabled = true;  
-        await loadRoster();  
+        if (id == "") return;  
 
         let emp = null;  
         for (let i = 1; i < roster.length; i++) {  
@@ -1546,16 +1519,13 @@
             }  
         }  
 
-        if (emp == null) {  
-            resultDiv.innerHTML = "<div class='card'><h3 style='text-align:center; color: var(--ios-text-muted);'>Employee ID Not Found</h3></div>";  
-            showToast("❌ ID Not Found");  
-            document.getElementById("searchBtn").disabled = false;
-            return;  
-        }  
+        if (emp == null) return;
 
         const { firstDayIndex, totalDays } = getMonthDetails(targetYear, selectedMonth);
         const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+        const monthShortNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
         const currentMonthLabel = monthNames[selectedMonth];  
+        const monthStr = monthShortNames[selectedMonth];
 
         let html = `
             <div class='card'>
@@ -1588,7 +1558,80 @@
 
             html += `
                 <div class='day ${cssClass}'>
-                    <div class='day-date'>${day}</div>
+                    <div class='day-date' style='font-size: 13px;'>${day} ${monthStr}</div>
+                    <div class='shift-code'>${shiftCode}</div>
+                </div>
+            `;
+        }
+        html += "</div></div>";
+        resultDiv.innerHTML = html;
+    }
+
+    // ORIGINAL SEARCH BUTTON LOGIC 
+    async function searchRoster() {  
+        const id = document.getElementById("empid").value.trim();  
+        const resultDiv = document.getElementById("result");  
+        const { operationalMonth } = getOperationalDateInfo();
+        const selectedMonth = operationalMonth; 
+
+        if (id == "") { showToast("⚠️ Enter ID"); return; }  
+
+        document.getElementById("searchBtn").disabled = true;  
+        await loadRoster();  
+
+        let emp = null;  
+        for (let i = 1; i < roster.length; i++) {  
+            if (roster[i].length > colMap.id && String(roster[i][colMap.id]).trim() == id) { 
+                emp = roster[i]; 
+                break; 
+            }  
+        }  
+
+        if (emp == null) {  
+            resultDiv.innerHTML = "<div class='card'><h3 style='text-align:center; color: var(--ios-text-muted);'>Employee ID Not Found</h3></div>";  
+            showToast("❌ ID Not Found");  
+            document.getElementById("searchBtn").disabled = false;
+            return;  
+        }  
+
+        const { firstDayIndex, totalDays } = getMonthDetails(targetYear, selectedMonth);
+        const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+        const monthShortNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        const currentMonthLabel = monthNames[selectedMonth];  
+        const monthStr = monthShortNames[selectedMonth];
+
+        let html = `
+            <div class='card'>
+                <div class='employeeName'>${emp[colMap.name]}</div>
+                <div class='employeeId'>
+                    <span>BA ID: ${emp[colMap.id]}</span>
+                    <span style='color:var(--ios-blue); font-weight:700;'>🗓️ ${currentMonthLabel} ${targetYear}</span>
+                </div>
+                <div class='calendar-header-grid'>
+                    <div class='weekday-label'>Sun</div><div class='weekday-label'>Mon</div>
+                    <div class='weekday-label'>Tue</div><div class='weekday-label'>Wed</div>
+                    <div class='weekday-label'>Thu</div><div class='weekday-label'>Fri</div>
+                    <div class='weekday-label'>Sat</div>
+                </div>
+                <div class='calendar'>
+        `;
+
+        for (let i = 0; i < firstDayIndex; i++) {
+            html += "<div class='blank-day'></div>";
+        }
+
+        for (let day = 1; day <= totalDays; day++) {
+            const dayColIdx = colMap.days[day];
+            let shiftCode = "";
+            if (dayColIdx && dayColIdx < emp.length) {
+                shiftCode = String(emp[dayColIdx]).trim();
+            }
+            let cssClass = getColor(shiftCode);
+            if(!shiftCode) shiftCode = "-";
+
+            html += `
+                <div class='day ${cssClass}'>
+                    <div class='day-date' style='font-size: 13px;'>${day} ${monthStr}</div>
                     <div class='shift-code'>${shiftCode}</div>
                 </div>
             `;
